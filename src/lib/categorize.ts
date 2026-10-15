@@ -1,6 +1,18 @@
 import type { GroupKey, TxGroup } from "./categories";
 
-export type Rule = { pattern: string; group_key: string; sub_label: string };
+export type Rule = { pattern: string; group_key: string; sub_label: string; direction?: string | null };
+
+/**
+ * Which way a rule works. Rules saved before rules had a direction: income rules apply to money in,
+ * spending rules to money out, and "between your accounts" to both.
+ */
+export function ruleDirection(r: Pick<Rule, "group_key" | "direction">): "in" | "out" | null {
+  if (r.direction === "in" || r.direction === "out") return r.direction;
+  return r.group_key === "entrada" ? "in" : r.group_key === "transfer" ? null : "out";
+}
+
+/** Subcategories for money coming in. */
+export const INCOME_CATALOG = ["Salário", "Pix recebido", "Rendimentos", "Reembolso", "Recebido"];
 export type Categorized = { group: TxGroup; sub: string; excluded: boolean };
 
 export type CategorizeInput = {
@@ -76,6 +88,8 @@ export function categorize(input: CategorizeInput, rules: Rule[] = []): Categori
 
   // Your own corrections win over everything else.
   for (const r of rules) {
+    const d = ruleDirection(r);
+    if (d && d !== input.direction) continue;
     if (r.pattern && desc.includes(normalize(r.pattern))) {
       return { group: r.group_key as TxGroup, sub: r.sub_label, excluded: r.group_key === "transfer" };
     }

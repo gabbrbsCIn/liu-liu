@@ -5,6 +5,7 @@ import { CategoryPicker, type CatOption, type CatValue } from "./CategoryPicker"
 import type { TxView } from "./TxList";
 
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+const defaultCat = (d: "in" | "out"): CatValue => (d === "in" ? { group_key: "entrada", label: "Recebido" } : { group_key: "outros", label: "Sem categoria" });
 
 /** Edit a transaction (or create one when `tx` is null). */
 export function TxModal({ tx, options, onClose, onSaved, onOptionsChange }: {
@@ -19,7 +20,7 @@ export function TxModal({ tx, options, onClose, onSaved, onOptionsChange }: {
   const [amount, setAmount] = useState(tx ? tx.amount.toFixed(2).replace(".", ",") : "");
   const [date, setDate] = useState(tx?.date ?? today());
   const [direction, setDirection] = useState<"in" | "out">(tx?.direction ?? "out");
-  const [cat, setCat] = useState<CatValue>(tx ? { group_key: tx.group_key, label: tx.sub_label } : { group_key: "outros", label: "Sem categoria" });
+  const [cat, setCat] = useState<CatValue>(tx ? { group_key: tx.group_key, label: tx.sub_label } : defaultCat("out"));
   const [rule, setRule] = useState(false);
   const [hidden, setHidden] = useState(tx?.hidden ?? false);
   const [note, setNote] = useState(tx?.note ?? "");
@@ -44,7 +45,7 @@ export function TxModal({ tx, options, onClose, onSaved, onOptionsChange }: {
     setBusy(true);
     try {
       if (creating) {
-        await call("/api/transactions", "POST", { description, amount: value, date, direction, group_key: direction === "out" ? cat.group_key : "entrada", sub_label: direction === "out" ? cat.label : undefined, note });
+        await call("/api/transactions", "POST", { description, amount: value, date, direction, group_key: cat.group_key, sub_label: cat.label, note });
       } else {
         await call(`/api/transactions/${encodeURIComponent(tx.id)}`, "PATCH", {
           description: description.trim() === tx.original_description ? null : description,
@@ -105,7 +106,7 @@ export function TxModal({ tx, options, onClose, onSaved, onOptionsChange }: {
             <label className="lbl" htmlFor="tx-amount">Valor</label>
             <div className="amount-field">
               {creating ? (
-                <button type="button" className={`sign ${direction === "in" ? "pos" : "neg"}`} onClick={() => setDirection((d) => (d === "in" ? "out" : "in"))} title="Trocar entre saída e entrada">
+                <button type="button" className={`sign ${direction === "in" ? "pos" : "neg"}`} onClick={() => { const d = direction === "in" ? "out" : "in"; setDirection(d); setCat(defaultCat(d)); }} title="Trocar entre saída e entrada">
                   {direction === "in" ? "+ R$" : "− R$"}
                 </button>
               ) : (
@@ -128,16 +129,13 @@ export function TxModal({ tx, options, onClose, onSaved, onOptionsChange }: {
           </div>
         )}
 
-        {direction === "out" && (
-          <>
-            <label className="lbl">Categoria</label>
-            <CategoryPicker value={cat} options={options} onChange={setCat} onCreate={createCat} />
-            {catChanged && (
-              <label className="check">
-                <input type="checkbox" checked={rule} onChange={(e) => setRule(e.target.checked)} /> Aplicar também às transações parecidas (passadas e futuras)
-              </label>
-            )}
-          </>
+        <label className="lbl">Categoria</label>
+        <CategoryPicker value={cat} options={options} onChange={setCat} onCreate={createCat} direction={direction} />
+        {cat.group_key === "transfer" && <div className="t2">Dinheiro passando entre contas suas: não entra nos gastos nem nas entradas.</div>}
+        {catChanged && (
+          <label className="check">
+            <input type="checkbox" checked={rule} onChange={(e) => setRule(e.target.checked)} /> Aplicar também às {direction === "in" ? "entradas" : "saídas"} parecidas (passadas e futuras)
+          </label>
         )}
 
         <label className="lbl" htmlFor="tx-note">Observação</label>

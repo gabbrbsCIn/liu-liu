@@ -11,19 +11,25 @@ import { SearchField } from './Filters';
 export type CatValue = { group_key: string; label: string };
 
 const TRANSFER: CatValue = { group_key: 'transfer', label: 'Entre suas contas' };
+const groupName = (k: string) => (k === 'entrada' ? 'Entradas' : group(k).name);
 
-/** Category button that opens a searchable list; typing a name that does not exist offers to create it in a group. */
-export function CategoryPicker({ value, options, onChange, onCreate }: { value: CatValue; options: CategoryOption[]; onChange: (v: CatValue) => void; onCreate: (v: CatValue) => Promise<void> }) {
+/**
+ * Category button that opens a searchable list; typing a name that does not exist offers to create it in a group.
+ * Money out picks a spending category, money in an income one; both can be marked as a move between your accounts.
+ */
+export function CategoryPicker({ value, options, onChange, onCreate, direction = 'out' }: { value: CatValue; options: CategoryOption[]; onChange: (v: CatValue) => void; onCreate: (v: CatValue) => Promise<void>; direction?: 'in' | 'out' }) {
   const t = useTheme();
+  const income = direction === 'in';
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
-  const [newGroup, setNewGroup] = useState(value.group_key !== 'transfer' && value.group_key !== 'entrada' ? value.group_key : 'outros');
+  const [newGroup, setNewGroup] = useState(income ? 'entrada' : value.group_key !== 'transfer' && value.group_key !== 'entrada' ? value.group_key : 'outros');
   const [creating, setCreating] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const nq = normalize(q);
-  const filtered = useMemo(() => options.filter((o) => !nq || normalize(`${o.label} ${group(o.group_key).name}`).includes(nq)), [options, nq]);
-  const exact = options.some((o) => normalize(o.label) === nq);
+  const side = useMemo(() => options.filter((o) => (income ? o.group_key === 'entrada' : o.group_key !== 'entrada')), [options, income]);
+  const filtered = useMemo(() => side.filter((o) => !nq || normalize(`${o.label} ${groupName(o.group_key)}`).includes(nq)), [side, nq]);
+  const exact = side.some((o) => normalize(o.label) === nq);
   const mine = filtered.filter((o) => o.custom);
 
   const close = () => {
@@ -36,7 +42,7 @@ export function CategoryPicker({ value, options, onChange, onCreate }: { value: 
     close();
   };
   const create = async () => {
-    const v = { group_key: newGroup, label: q.trim() };
+    const v = { group_key: income ? 'entrada' : newGroup, label: q.trim() };
     setCreating(true);
     setErr(null);
     try {
@@ -71,7 +77,7 @@ export function CategoryPicker({ value, options, onChange, onCreate }: { value: 
       <Pressable onPress={() => setOpen(true)} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: t['line-2'], borderRadius: 10, backgroundColor: t.raise, opacity: pressed ? 0.75 : 1 })}>
         <Dot color={color} />
         <T w="medium" numberOfLines={1} style={{ flex: 1 }}>{value.label}</T>
-        <T c="fg-3" size={12}>{value.group_key === 'transfer' ? 'fora dos gastos' : value.group_key === 'entrada' ? 'entrada' : group(value.group_key).name}</T>
+        <T c="fg-3" size={12}>{value.group_key === 'transfer' ? 'entre contas' : value.group_key === 'entrada' ? 'entrada' : group(value.group_key).name}</T>
         <View style={{ transform: [{ rotate: '90deg' }] }}>
           <Icon name="chev" size={14} color={t['fg-3']} />
         </View>
@@ -82,8 +88,8 @@ export function CategoryPicker({ value, options, onChange, onCreate }: { value: 
         <ScrollView keyboardShouldPersistTaps="handled" style={{ flexShrink: 1 }} contentContainerStyle={{ paddingBottom: 12 }}>
           {q.trim().length >= 2 && !exact && (
             <View style={{ gap: 8, paddingVertical: 10, paddingHorizontal: 6, borderBottomWidth: 1, borderBottomColor: t.line }}>
-              <T size={13.5}>Criar <T size={13.5} w="bold">“{q.trim()}”</T> em</T>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 6 }}>
+              <T size={13.5}>Criar <T size={13.5} w="bold">“{q.trim()}”</T> em{income ? ' Entradas' : ''}</T>
+              {!income && <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 6 }}>
                 {GROUPS.map((g) => {
                   const on = newGroup === g.key;
                   return (
@@ -93,7 +99,7 @@ export function CategoryPicker({ value, options, onChange, onCreate }: { value: 
                     </Pressable>
                   );
                 })}
-              </ScrollView>
+              </ScrollView>}
               <Button title="Criar" kind="primary" loading={creating} onPress={create} style={{ alignSelf: 'flex-start', paddingVertical: 8 }} />
               {err && <T c="neg" size={13}>{err}</T>}
             </View>
@@ -101,23 +107,23 @@ export function CategoryPicker({ value, options, onChange, onCreate }: { value: 
           {mine.length > 0 && (
             <>
               {head('✦ Suas categorias')}
-              {mine.map((o) => opt(o, `m${o.group_key}${o.label}`, group(o.group_key).name))}
+              {mine.map((o) => opt(o, `m${o.group_key}${o.label}`, groupName(o.group_key)))}
             </>
           )}
-          {GROUPS.map((g) => {
+          {(income ? [{ key: 'entrada', name: 'Entradas', color: '' }] : GROUPS).map((g) => {
             const list = filtered.filter((o) => o.group_key === g.key && !o.custom);
             if (!list.length) return null;
             return (
               <View key={g.key}>
-                {head(g.name, t.color(g.color))}
+                {head(g.name, g.key === 'entrada' ? t.pos : t.color(g.color))}
                 {list.map((o) => opt(o, o.label))}
               </View>
             );
           })}
-          {(!nq || normalize('fora dos gastos entre suas contas transferencia').includes(nq)) && (
+          {(!nq || normalize('fora dos gastos das entradas entre suas contas transferencia').includes(nq)) && (
             <>
-              {head('Fora dos gastos')}
-              {opt(TRANSFER, 'transfer', undefined, 'Entre suas contas (não conta como gasto)')}
+              {head(income ? 'Fora das entradas' : 'Fora dos gastos')}
+              {opt(TRANSFER, 'transfer', undefined, `Entre suas contas (não conta como ${income ? 'renda' : 'gasto'})`)}
             </>
           )}
           {!filtered.length && q.trim().length < 2 && <T c="fg-3" style={{ padding: 8 }}>Nada encontrado.</T>}
