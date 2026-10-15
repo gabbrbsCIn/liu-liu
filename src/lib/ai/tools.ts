@@ -100,10 +100,10 @@ export const TOOL_DEFS = [
   def({
     name: "recategorizar",
     description:
-      "Muda a categoria de uma transação. Com aplicar_nas_parecidas, as transações com a mesma descrição (passadas e futuras) também mudam. Use 'transfer' como categoria para tirar uma movimentação entre suas próprias contas dos gastos.",
+      "Muda a categoria de uma transação. Com aplicar_nas_parecidas, as transações com a mesma descrição e no mesmo sentido (passadas e futuras) também mudam. Use 'transfer' para tirar uma movimentação entre as próprias contas dos gastos ou das entradas. Entradas (dinheiro que chegou) só aceitam 'entrada' ou 'transfer'; saídas só aceitam categorias de gasto ou 'transfer'.",
     schema: z.object({
       id: z.string(),
-      categoria: z.enum([...GROUP_ENUM, "transfer"]),
+      categoria: z.enum([...GROUP_ENUM, "transfer", "entrada"]),
       subcategoria: z.string().min(1).max(60),
       aplicar_nas_parecidas: z.boolean(),
     }),

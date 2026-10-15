@@ -30,6 +30,8 @@ export default function TransacaoModal() {
   return <Editor key={open.tx?.id ?? 'new'} {...open} />;
 }
 
+const defaultCat = (d: 'in' | 'out'): CatValue => (d === 'in' ? { group_key: 'entrada', label: 'Recebido' } : { group_key: 'outros', label: 'Sem categoria' });
+
 function Editor({ tx, options: initialOptions, today }: NonNullable<ReturnType<typeof txStore.get>>) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -39,7 +41,7 @@ function Editor({ tx, options: initialOptions, today }: NonNullable<ReturnType<t
   const [amount, setAmount] = useState(tx ? tx.amount.toFixed(2).replace('.', ',') : '');
   const [date, setDate] = useState(tx?.date ?? today);
   const [direction, setDirection] = useState<'in' | 'out'>(tx?.direction ?? 'out');
-  const [cat, setCat] = useState<CatValue>(tx ? { group_key: tx.group_key, label: tx.sub_label } : { group_key: 'outros', label: 'Sem categoria' });
+  const [cat, setCat] = useState<CatValue>(tx ? { group_key: tx.group_key, label: tx.sub_label } : defaultCat('out'));
   const [rule, setRule] = useState(false);
   const [hidden, setHidden] = useState(tx?.hidden ?? false);
   const [note, setNote] = useState(tx?.note ?? '');
@@ -68,7 +70,7 @@ function Editor({ tx, options: initialOptions, today }: NonNullable<ReturnType<t
     setErr(null);
     if (!description.trim()) return setErr('Dê um nome para a transação.');
     if (!Number.isFinite(value) || value <= 0) return setErr('Digite um valor válido, ex.: 42,90');
-    if (creating) return run({ path: '/api/transactions', method: 'POST', body: { description, amount: value, date, direction, group_key: direction === 'out' ? cat.group_key : 'entrada', sub_label: direction === 'out' ? cat.label : undefined, note } });
+    if (creating) return run({ path: '/api/transactions', method: 'POST', body: { description, amount: value, date, direction, group_key: cat.group_key, sub_label: cat.label, note } });
     run({
       path: url,
       method: 'PATCH',
@@ -114,7 +116,7 @@ function Editor({ tx, options: initialOptions, today }: NonNullable<ReturnType<t
             {lbl('Valor')}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               {creating ? (
-                <Pressable onPress={() => setDirection((d) => (d === 'in' ? 'out' : 'in'))} accessibilityHint="Trocar entre saída e entrada" style={{ borderWidth: 1, borderColor: t['line-2'], borderRadius: 8, paddingHorizontal: 8, paddingVertical: 10, minWidth: 54, alignItems: 'center' }}>
+                <Pressable onPress={() => { const d = direction === 'in' ? 'out' : 'in'; setDirection(d); setCat(defaultCat(d)); }} accessibilityHint="Trocar entre saída e entrada" style={{ borderWidth: 1, borderColor: t['line-2'], borderRadius: 8, paddingHorizontal: 8, paddingVertical: 10, minWidth: 54, alignItems: 'center' }}>
                   {sign}
                 </Pressable>
               ) : (
@@ -139,13 +141,10 @@ function Editor({ tx, options: initialOptions, today }: NonNullable<ReturnType<t
           </View>
         )}
 
-        {direction === 'out' && (
-          <>
-            {lbl('Categoria')}
-            <CategoryPicker value={cat} options={options} onChange={setCat} onCreate={createCat} />
-            {catChanged && <Toggle value={rule} onChange={setRule}>Aplicar também às transações parecidas (passadas e futuras)</Toggle>}
-          </>
-        )}
+        {lbl('Categoria')}
+        <CategoryPicker value={cat} options={options} onChange={setCat} onCreate={createCat} direction={direction} />
+        {cat.group_key === 'transfer' && <T c="fg-3" size={12.5} style={{ marginTop: 6 }}>Dinheiro passando entre contas suas: não entra nos gastos nem nas entradas.</T>}
+        {catChanged && <Toggle value={rule} onChange={setRule}>Aplicar também às {direction === 'in' ? 'entradas' : 'saídas'} parecidas (passadas e futuras)</Toggle>}
 
         {lbl('Observação')}
         <Field value={note} onChangeText={setNote} maxLength={500} placeholder="Opcional" multiline style={{ minHeight: 64, textAlignVertical: 'top' }} />

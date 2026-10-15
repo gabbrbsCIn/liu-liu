@@ -94,6 +94,10 @@ CREATE TABLE IF NOT EXISTS category_rules (
   group_key text NOT NULL,
   sub_label text NOT NULL
 );
+ALTER TABLE category_rules ADD COLUMN IF NOT EXISTS direction text;
+-- One rule per description and direction ("PIX FULANO" can be income one way and a transfer the other).
+ALTER TABLE category_rules DROP CONSTRAINT IF EXISTS category_rules_pkey;
+CREATE UNIQUE INDEX IF NOT EXISTS category_rules_pattern_direction ON category_rules (pattern, (COALESCE(direction, '')));
 CREATE TABLE IF NOT EXISTS budgets (
   group_key text PRIMARY KEY,
   amount double precision NOT NULL

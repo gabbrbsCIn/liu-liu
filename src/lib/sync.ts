@@ -93,7 +93,7 @@ export async function syncItem(itemId: string, dbIn?: Db) {
   );
   await db.query("UPDATE items SET next_auto_sync_at = $2 WHERE id = $1", [itemId, item.nextAutoSyncAt ? new Date(item.nextAutoSyncAt).toISOString() : null]);
 
-  const rules = await db.query<Rule>("SELECT pattern, group_key, sub_label FROM category_rules");
+  const rules = await db.query<Rule>("SELECT pattern, group_key, sub_label, direction FROM category_rules ORDER BY direction NULLS LAST");
   const accounts = (await api.fetchAccounts(itemId)).results;
   const from = prev?.last_synced_at ? addDays(prev.last_synced_at.slice(0, 10), -OVERLAP_DAYS) : addDays(today(), -FIRST_SYNC_DAYS);
   let txCount = 0;

@@ -1,4 +1,4 @@
-import { CATALOG, categorize, baseDescription, type Rule } from "./categorize";
+import { CATALOG, INCOME_CATALOG, categorize, baseDescription, type Rule } from "./categorize";
 import { isGroupKey } from "./categories";
 import { today } from "./dates";
 import { getDb } from "./db";
@@ -8,22 +8,24 @@ export const CASH_ACCOUNT = "manual-cash";
 
 /** Change a transaction's category. With `rule`, every past and future transaction with the same description follows. */
 export async function recategorize(id: string, groupKey: string, subLabel: string, rule: boolean) {
-  if (!isGroupKey(groupKey) && groupKey !== "transfer") throw new Error("Categoria desconhecida.");
-  const sub = subLabel.trim().slice(0, 60) || "Sem categoria";
+  if (!isGroupKey(groupKey) && groupKey !== "transfer" && groupKey !== "entrada") throw new Error("Categoria desconhecida.");
   const db = await getDb();
-  const tx = (await db.query<{ description: string }>("SELECT description FROM transactions WHERE id = $1", [id]))[0];
+  const tx = (await db.query<{ description: string; direction: "in" | "out" }>("SELECT description, direction FROM transactions WHERE id = $1", [id]))[0];
   if (!tx) throw new Error("Transação não encontrada.");
+  // Money in is income or a move between your accounts; money out is spending or a move.
+  if (tx.direction === "in" && isGroupKey(groupKey)) throw new Error("Esta transação é uma entrada: escolha uma categoria de entrada ou “Entre suas contas”.");
+  if (tx.direction === "out" && groupKey === "entrada") throw new Error("Esta transação é uma saída: escolha uma categoria de gasto ou “Entre suas contas”.");
+  const sub = subLabel.trim().slice(0, 60) || (groupKey === "entrada" ? "Recebido" : groupKey === "transfer" ? "Entre suas contas" : "Sem categoria");
   const excluded = groupKey === "transfer";
   await db.query("UPDATE transactions SET group_key = $2, sub_label = $3, excluded = $4, user_edited = true WHERE id = $1", [id, groupKey, sub, excluded]);
   let updated = 1;
   if (rule) {
     const pattern = baseDescription(tx.description);
     if (pattern.length >= 3) {
-      await db.query(
-        "INSERT INTO category_rules (pattern, group_key, sub_label) VALUES ($1,$2,$3) ON CONFLICT (pattern) DO UPDATE SET group_key = EXCLUDED.group_key, sub_label = EXCLUDED.sub_label",
-        [pattern, groupKey, sub],
-      );
-      const others = await db.query<{ id: string; description: string }>("SELECT id, description FROM transactions WHERE id <> $1 AND direction = 'out'", [id]);
+      // The rule only works in this transaction's direction; an older rule without one is replaced.
+      await db.query("DELETE FROM category_rules WHERE pattern = $1 AND (direction = $2 OR direction IS NULL)", [pattern, tx.direction]);
+      await db.query("INSERT INTO category_rules (pattern, group_key, sub_label, direction) VALUES ($1,$2,$3,$4)", [pattern, groupKey, sub, tx.direction]);
+      const others = await db.query<{ id: string; description: string }>("SELECT id, description FROM transactions WHERE id <> $1 AND direction = $2", [id, tx.direction]);
       const ids = others.filter((o) => baseDescription(o.description).includes(pattern)).map((o) => o.id);
       if (ids.length) {
         await db.query("UPDATE transactions SET group_key = $2, sub_label = $3, excluded = $4, user_edited = true WHERE id = ANY($1::text[])", [ids, groupKey, sub, excluded]);
@@ -36,11 +38,12 @@ export async function recategorize(id: string, groupKey: string, subLabel: strin
 
 export async function addManualTransaction(p: { description: string; amount: number; date?: string; group_key?: string; sub_label?: string; direction?: "in" | "out"; source?: "chat" | "manual" }) {
   const db = await getDb();
-  const rules = await db.query<Rule>("SELECT pattern, group_key, sub_label FROM category_rules");
+  const rules = await db.query<Rule>("SELECT pattern, group_key, sub_label, direction FROM category_rules ORDER BY direction NULLS LAST");
   const direction = p.direction ?? "out";
   const auto = categorize({ description: p.description, direction, accountType: "MANUAL" }, rules);
-  const groupKey = p.group_key && (isGroupKey(p.group_key) || p.group_key === "entrada") ? p.group_key : auto.group;
-  const sub = p.sub_label?.trim() || auto.sub;
+  const allowed = direction === "in" ? p.group_key === "entrada" || p.group_key === "transfer" : !!p.group_key && (isGroupKey(p.group_key) || p.group_key === "transfer");
+  const groupKey = p.group_key && allowed ? p.group_key : auto.group;
+  const sub = p.sub_label?.trim() || (groupKey === auto.group ? auto.sub : groupKey === "transfer" ? "Entre suas contas" : groupKey === "entrada" ? "Recebido" : "Sem categoria");
   const date = p.date && /^\d{4}-\d{2}-\d{2}$/.test(p.date) ? p.date : today();
   const id = `manual-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
   await db.query(
@@ -49,8 +52,8 @@ export async function addManualTransaction(p: { description: string; amount: num
   );
   await db.query(
     `INSERT INTO transactions (id, account_id, date, description, amount, direction, group_key, sub_label, excluded, user_edited, source)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false,true,$9)`,
-    [id, CASH_ACCOUNT, date, p.description.slice(0, 120), Math.abs(p.amount), direction, groupKey, sub, p.source ?? "chat"],
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,$10)`,
+    [id, CASH_ACCOUNT, date, p.description.slice(0, 120), Math.abs(p.amount), direction, groupKey, sub, groupKey === "transfer", p.source ?? "chat"],
   );
   return { id, date, group_key: groupKey, sub_label: sub, amount: Math.abs(p.amount), description: p.description };
 }
@@ -152,24 +155,25 @@ export async function categoryOptions(): Promise<CategoryOption[]> {
   const db = await getDb();
   const [custom, used] = await Promise.all([
     db.query<{ group_key: string; label: string }>("SELECT group_key, label FROM custom_categories ORDER BY created_at"),
-    db.query<{ group_key: string; label: string }>("SELECT DISTINCT group_key, sub_label AS label FROM transactions WHERE direction = 'out' AND group_key <> 'transfer'"),
+    db.query<{ group_key: string; label: string }>("SELECT DISTINCT group_key, sub_label AS label FROM transactions WHERE (direction = 'out' AND group_key <> 'transfer') OR group_key = 'entrada'"),
   ]);
   const seen = new Set<string>();
   const out: CategoryOption[] = [];
   const add = (g: string, l: string, c: boolean) => {
     const k = `${g}|${l.toLowerCase()}`;
-    if (!isGroupKey(g) || seen.has(k)) return;
+    if ((!isGroupKey(g) && g !== "entrada") || seen.has(k)) return;
     seen.add(k);
     out.push({ group_key: g, label: l, custom: c });
   };
   custom.forEach((c) => add(c.group_key, c.label, true));
   for (const [g, subs] of Object.entries(CATALOG)) subs.forEach((s) => add(g, s, false));
+  INCOME_CATALOG.forEach((s) => add("entrada", s, false));
   used.forEach((u) => add(u.group_key, u.label, false));
   return out;
 }
 
 export async function createCategory(groupKey: string, label: string) {
-  if (!isGroupKey(groupKey)) throw new Error("Escolha em qual grupo a categoria entra.");
+  if (!isGroupKey(groupKey) && groupKey !== "entrada") throw new Error("Escolha em qual grupo a categoria entra.");
   const l = label.trim().replace(/\s+/g, " ").slice(0, 40);
   if (l.length < 2) throw new Error("Nome muito curto.");
   const name = l[0].toUpperCase() + l.slice(1);
