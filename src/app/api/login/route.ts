@@ -9,7 +9,8 @@ export async function POST(req: Request) {
     await new Promise((r) => setTimeout(r, 600));
     return NextResponse.json({ error: "Senha incorreta." }, { status: 401 });
   }
-  const res = NextResponse.json({ ok: true });
+  // The mobile app keeps the token and sends it as `Authorization: Bearer`.
+  const res = NextResponse.json({ ok: true, token: expected });
   res.cookies.set(SESSION_COOKIE, expected, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

@@ -11,28 +11,9 @@ import type { CatOption } from "./CategoryPicker";
 import { FilterMenu } from "./FilterMenu";
 import { Icon } from "./Icon";
 import { TxModal } from "./TxModal";
+import type { AccountOption, TxView } from "@/lib/views";
 
-export type TxView = {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-  direction: "in" | "out";
-  group_key: string;
-  sub_label: string;
-  excluded: boolean;
-  hidden: boolean;
-  note: string | null;
-  edited: boolean;
-  original_description: string;
-  original_amount: number;
-  original_date: string;
-  source: string;
-  installment: string | null;
-  account: { id: string; name: string; color: string | null; type: string };
-};
-
-export type AccountOption = { id: string; name: string; label: string; color: string | null };
+export type { AccountOption, TxView };
 
 const WD = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
 const MON = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];

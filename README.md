@@ -16,6 +16,7 @@ O design aprovado está em `design/` (`prototipo.html` e `direcoes.html`).
 - **Categorias:** regras em `src/lib/categorize.ts` usam a categoria da Pluggy e a descrição. Quando você corrige uma categoria (na tela de transações ou pedindo ao liu liu), vira uma regra para as próximas. Pagamento de fatura, transferência entre suas contas e aplicações ficam fora dos gastos.
 - **Chat:** `src/lib/ai/chat.ts` conversa com um modelo do Ollama (padrão `gpt-oss:120b`) com ferramentas para consultar o mês, buscar transações, registrar gastos em dinheiro, recategorizar, criar metas e definir orçamento e meta de poupança. Cada dia começa uma conversa nova.
 - **Acesso:** uma senha só (`APP_PASSWORD`), já que o app é pessoal.
+- **App Android/iOS:** em `mobile/` (Expo). Usa este servidor pela API `/api/app/*`, com o mesmo login. Veja `mobile/README.md`.
 
 ## Rodar localmente
 

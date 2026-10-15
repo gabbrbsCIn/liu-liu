@@ -1,0 +1,125 @@
+name: App (Android e iOS)
+
+# Pushes that touch the app run the type check. The builds run when started by hand:
+# Actions › "App (Android e iOS)" › Run workflow. Set the repository variable API_URL
+# (Settings › Secrets and variables › Actions › Variables) to the server the app should suggest at login.
+on:
+  push:
+    paths: ["mobile/**", "src/lib/**", ".github/workflows/mobile.yml"]
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "O que gerar"
+        type: choice
+        options: [android, ios, ambos]
+        default: ambos
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+env:
+  EXPO_PUBLIC_API_URL: ${{ vars.API_URL }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            mobile/package-lock.json
+      # The app type-checks against the server's types (src/lib), so both installs are needed.
+      - run: npm ci
+      - run: npm ci
+        working-directory: mobile
+      - run: npx tsc --noEmit
+        working-directory: mobile
+
+  apk:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' && inputs.platform != 'ios'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - name: Gerar projeto Android
+        run: npx expo prebuild --platform android --clean
+      # Release build signed with the debug key from the Expo template: installs on any phone
+      # ("instalar apps desconhecidos"), not accepted by the Play Store.
+      - name: Compilar APK
+        working-directory: mobile/android
+        run: ./gradlew assembleRelease --no-daemon
+      - run: cp android/app/build/outputs/apk/release/app-release.apk liuliu.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liuliu-apk
+          path: mobile/liuliu.apk
+          retention-days: 30
+
+  ipa:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' && inputs.platform != 'android'
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      - name: Cache dos Pods
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: pods-${{ hashFiles('mobile/package-lock.json') }}
+          restore-keys: pods-
+      - name: Gerar projeto iOS
+        run: npx expo prebuild --platform ios --clean
+      # Unsigned: install with Sideloadly/AltStore using your Apple ID (free accounts: renew every 7 days).
+      - name: Compilar (Release, sem assinatura)
+        working-directory: mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          set -o pipefail
+          xcodebuild \
+            -workspace "$WORKSPACE" -scheme "$SCHEME" \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build | tail -n 200
+      - name: Empacotar .ipa
+        run: |
+          mkdir -p Payload
+          cp -R ios/build/Build/Products/Release-iphoneos/*.app Payload/
+          zip -qr liuliu.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liuliu-ipa
+          path: mobile/liuliu.ipa
+          retention-days: 30
