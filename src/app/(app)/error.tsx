@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type Health = { env: Record<string, boolean>; database: { ok: boolean; error?: string } };
+type Health = { ok: boolean; env?: Record<string, boolean>; database?: { ok: boolean; error?: string } };
 
 const HELP: Record<string, string> = {
   DATABASE_URL: "Conecte um Postgres na aba Storage (Neon) e faça um Redeploy.",
@@ -16,12 +16,12 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
   useEffect(() => {
     fetch("/api/health").then((r) => r.json()).then(setH).catch(() => setH(null));
   }, []);
-  const missing = h ? Object.entries(h.env).filter(([, v]) => !v).map(([k]) => k) : [];
+  const missing = h?.env ? Object.entries(h.env).filter(([, v]) => !v).map(([k]) => k) : [];
   return (
     <div className="p empty" style={{ marginTop: 24, alignItems: "flex-start", textAlign: "left" }}>
       <h2>Algo na configuração impediu a página de abrir</h2>
       {h === null && <p>Verificando a configuração…</p>}
-      {h && !h.database.ok && (
+      {h?.database && !h.database.ok && (
         <p>
           <b>Banco de dados:</b> {h.database.error ?? "não respondeu."}
         </p>
@@ -33,7 +33,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
           ))}
         </ul>
       )}
-      {h && h.database.ok && missing.length === 0 && <p>A configuração parece certa. Código do erro: {error.digest ?? "—"}.</p>}
+      {h?.database?.ok && missing.length === 0 && <p>A configuração parece certa. Código do erro: {error.digest ?? "—"}.</p>}
       <p className="faint" style={{ fontSize: 12.5 }}>Depois de mudar variáveis na Vercel, é preciso fazer um Redeploy para elas valerem.</p>
       <button className="btn pri" onClick={reset}>Tentar de novo</button>
     </div>
