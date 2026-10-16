@@ -102,7 +102,7 @@ await insertMany(db, "accounts", ["id", "item_id", "type", "subtype", "name", "n
   [NU.id, "demo-item-nu", "BANK", "CHECKING_ACCOUNT", "Conta", "0001-1", "Nubank", "#820ad1", 8742.19, null, null, null, null],
   [ITAU.id, "demo-item-itau", "BANK", "CHECKING_ACCOUNT", "Conta corrente", "3344-5", "Itaú", "#ec7000", 3120.55, null, null, null, null],
   [INTER.id, "demo-item-inter", "BANK", "CHECKING_ACCOUNT", "Conta", "9876-0", "Inter", "#ff7a00", 1455.78, null, null, null, null],
-  [NUC.id, "demo-item-nu", "CREDIT", "CREDIT_CARD", "Nubank Mastercard", "5162********8612", "Nubank", "#820ad1", 2184.33, 9000, 6815.67, `${next}-03`, `${next}-10`],
+  [NUC.id, "demo-item-nu", "CREDIT", "CREDIT_CARD", "Nubank Mastercard", "5162********4321", "Nubank", "#820ad1", 2184.33, 9000, 6815.67, `${next}-03`, `${next}-10`],
   [ITAUC.id, "demo-item-itau", "CREDIT", "CREDIT_CARD", "Itaú Visa", "4111********4471", "Itaú", "#ec7000", 1036.9, 6000, 4963.1, `${next}-05`, `${next}-12`],
 ], "");
 

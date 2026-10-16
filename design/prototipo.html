@@ -629,7 +629,7 @@ $('notes').innerHTML = NOTES.map(([t,q])=>`<li><button data-ask="${q}"><i></i><s
 $('accts').innerHTML = [['nu','Conta corrente',8742.19],['itau','Conta corrente',3120.55],['inter','Conta corrente',1455.78]]
   .map(([b,t,v])=>`<div class="row"><span class="bank" style="background:${BANKS[b].c}">${BANKS[b].s}</span><div class="grow"><div class="t1">${BANKS[b].n}</div><div class="t2">${t}</div></div><span class="amt">${BRL(v)}</span></div>`).join('');
 const CARDS = [
-  {b:'nu', last:'8612', lim:9000, fat:2184.33, close:'03 out', due:'10 out', hist:[1840.2,2310.7,1975.4,2650.1,2412.9,2184.33], next:1301.15},
+  {b:'nu', last:'4321', lim:9000, fat:2184.33, close:'03 out', due:'10 out', hist:[1840.2,2310.7,1975.4,2650.1,2412.9,2184.33], next:1301.15},
   {b:'itau', last:'4471', lim:6000, fat:1036.90, close:'05 out', due:'12 out', hist:[980.5,1120.3,890.75,1310.4,1205.6,1036.90], next:486.90},
 ];
 $('limits').innerHTML = CARDS.map(c=>{ const B=BANKS[c.b], av=c.lim-c.fat;

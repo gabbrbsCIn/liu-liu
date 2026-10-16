@@ -122,4 +122,10 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   display text,
   created_at text DEFAULT (now()::text)
 );
+-- Login attempts per client IP and overall, to stop password guessing.
+CREATE TABLE IF NOT EXISTS login_attempts (
+  key text PRIMARY KEY,
+  attempts integer NOT NULL,
+  window_start bigint NOT NULL
+);
 `;

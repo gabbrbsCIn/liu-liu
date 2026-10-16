@@ -69,7 +69,7 @@ export function ItemIdForm() {
   return (
     <View style={{ gap: 8, alignSelf: 'stretch', marginTop: 8 }}>
       <T c="fg-2" size={12.5} center>Já conectou pelo painel da Pluggy? Cole o ID do item (aparece acima do nome “MeuPluggy”):</T>
-      <Field value={itemId} onChangeText={setItemId} placeholder="0880bcd8-a09e-4cc4-…" autoCapitalize="none" autoCorrect={false} onSubmitEditing={submit} style={{ fontFamily: fonts.mono, fontSize: 12.5 }} accessibilityLabel="ID do item da Pluggy" />
+      <Field value={itemId} onChangeText={setItemId} placeholder="1a2b3c4d-5e6f-…" autoCapitalize="none" autoCorrect={false} onSubmitEditing={submit} style={{ fontFamily: fonts.mono, fontSize: 12.5 }} accessibilityLabel="ID do item da Pluggy" />
       <Button title={imp.isPending ? 'Importando… (pode levar 1 min)' : 'Importar'} onPress={submit} disabled={!valid || imp.isPending} />
       {msg && <T c={msg.ok ? 'pos' : 'neg'} center>{msg.text}</T>}
     </View>

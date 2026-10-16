@@ -37,7 +37,7 @@ export function ItemIdForm() {
         value={itemId}
         onChangeText={setItemId}
         onSubmitEditing={submit}
-        placeholder="0880bcd8-a09e-4cc4-…"
+        placeholder="1a2b3c4d-5e6f-…"
         autoCapitalize="none"
         autoCorrect={false}
         maxLength={64}
