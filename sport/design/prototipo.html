@@ -1,0 +1,770 @@
+<title>Diário do Leão</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky header with the rubro-negro stripe and tabs; Resumo opens on a scoreboard of the whole record, then records, seasons chart and moments. Each game is an ingresso (ticket stub). */
+:root{
+  --bg:#f3f3f4; --panel:#ffffff; --raise:#ececee; --line:#e0dfe2; --line-2:#cbc9ce;
+  --ink:#161314; --ink-2:#58525a; --ink-3:#8a858d;
+  --red:#c8102e; --red-ink:#ffffff; --red-dim:#c8102e14; --gold:#9a6f00;
+  --stripe-r:#c8102e; --stripe-k:#151213;
+  /* resultados: V vermelho, E dourado, D azul (paleta validada p/ daltonismo, sempre com letra/legenda) */
+  --v:#c8102e; --e:#b8860b; --d:#3d64a8;
+  --f-disp:"Big Shoulders Display", "Barlow Condensed", Impact, "Arial Narrow", sans-serif;
+  --f-ui:"Barlow", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141112; --panel:#1c1819; --raise:#262122; --line:#2d2829; --line-2:#3d3638;
+  --ink:#f3eeec; --ink-2:#b6adab; --ink-3:#80777a;
+  --red:#e0405a; --red-ink:#ffffff; --red-dim:#e0405a1f; --gold:#d6ad45;
+  --stripe-r:#c8102e; --stripe-k:#050404;
+  --v:#e0405a; --e:#9c9a2a; --d:#6a8ee0; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#141112; --panel:#1c1819; --raise:#262122; --line:#2d2829; --line-2:#3d3638;
+  --ink:#f3eeec; --ink-2:#b6adab; --ink-3:#80777a;
+  --red:#e0405a; --red-ink:#ffffff; --red-dim:#e0405a1f; --gold:#d6ad45;
+  --stripe-r:#c8102e; --stripe-k:#050404;
+  --v:#e0405a; --e:#9c9a2a; --d:#6a8ee0; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--f-ui); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--stripe-k)}
+button,input,select,textarea{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--red); outline-offset:2px}
+.wrap{max-width:1080px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
+.n{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono); font-size:.86em; letter-spacing:.01em}
+.kick{font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); font-weight:600}
+h1,h2,h3{text-wrap:balance; margin:0}
+h2{font-family:var(--f-disp); font-weight:800; font-size:28px; letter-spacing:.01em; text-transform:uppercase; line-height:1}
+h3{font-size:15px; font-weight:700}
+
+/* ===== header ===== */
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--stripe-k); color:#f3eeec}
+.stripes{height:10px; background:repeating-linear-gradient(to bottom, var(--stripe-r) 0 5px, var(--stripe-k) 5px 10px)}
+.bar{display:flex; align-items:center; gap:16px; padding-block:10px 0; flex-wrap:wrap}
+.brand{display:flex; align-items:baseline; gap:10px; margin-right:auto; color:#f3eeec; text-decoration:none}
+.brand b{font-family:var(--f-disp); font-weight:900; font-size:26px; text-transform:uppercase; letter-spacing:.02em; line-height:1}
+.brand span{font-size:12px; color:#a59c9e}
+.tabs{display:flex; gap:2px; overflow-x:auto; scrollbar-width:none; width:100%; margin-top:6px}
+.tabs a{flex:none; color:#c9c0c2; text-decoration:none; font-weight:600; font-size:14px; padding:9px 12px 11px; border-bottom:3px solid transparent}
+.tabs a:hover{color:#fff}
+.tabs a[aria-current="page"]{color:#fff; border-color:var(--stripe-r)}
+.tabs a.cta{margin-left:auto; color:#fff}
+.tabs a.cta::before{content:"+ "; color:#ff6b7e}
+
+main{padding-block:24px 64px}
+.view{display:grid; gap:28px}
+.sec{display:grid; gap:14px}
+.sec-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.sec-h p{margin:0; color:var(--ink-2); font-size:14px}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px}
+
+/* ===== placar geral ===== */
+.board{background:var(--stripe-k); color:#f3eeec; border-radius:14px; overflow:hidden; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.board .l{padding:22px 22px 20px; display:grid; gap:6px; align-content:start}
+.board .big{font-family:var(--f-disp); font-weight:900; font-size:clamp(72px,14vw,128px); line-height:.85; letter-spacing:-.01em}
+.board .big small{font-size:.32em; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#ff6b7e; margin-left:6px}
+.board .sub{color:#b9b0b2; font-size:14px; max-width:40ch}
+.board .r{padding:22px; display:grid; gap:14px; align-content:center; background:#ffffff08; border-left:1px solid #ffffff14}
+.vde{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px}
+.vde div{display:grid; gap:2px}
+.vde b{font-family:var(--f-disp); font-weight:800; font-size:44px; line-height:.9}
+.vde span{font-size:12px; color:#a59c9e; text-transform:uppercase; letter-spacing:.08em; display:flex; align-items:center; gap:6px}
+.vde i{width:8px; height:8px; border-radius:2px; display:inline-block}
+.rb{display:flex; gap:2px; height:12px; border-radius:4px; overflow:hidden}
+.rb i{display:block; height:100%}
+.facts{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; font-size:13px; color:#b9b0b2}
+.facts b{display:block; font-family:var(--f-disp); font-weight:800; font-size:26px; color:#f3eeec; line-height:1}
+
+/* ===== recordes ===== */
+.recs{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px}
+.rec{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; display:grid; gap:4px; text-decoration:none; color:inherit; align-content:start}
+a.rec:hover{border-color:var(--line-2)}
+.rec .v{font-family:var(--f-disp); font-weight:800; font-size:36px; line-height:1; letter-spacing:.01em}
+.rec .v em{font-style:normal; font-size:.5em; color:var(--ink-3); margin-left:4px; text-transform:uppercase}
+.rec p{margin:0; font-size:13.5px; color:var(--ink-2)}
+
+/* ===== chart ===== */
+.chart{position:relative}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.chart text{font-family:var(--f-ui); font-size:11px; fill:var(--ink-3)}
+.chart .lbl{fill:var(--ink-2); font-weight:600}
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--ink-2)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.legend i{width:10px; height:10px; border-radius:3px; display:inline-block}
+.tip{position:absolute; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12.5px; padding:8px 10px; border-radius:8px; white-space:nowrap; transform:translate(-50%,calc(-100% - 10px)); z-index:5; line-height:1.4}
+.tip b{font-weight:700}
+details.tbl summary{cursor:pointer; color:var(--ink-2); font-size:13.5px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:14px}
+th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); white-space:nowrap}
+th{font-size:12px; font-weight:600; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
+
+.two{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px}
+.hbars{display:grid; gap:8px}
+.hb{display:grid; grid-template-columns:44px minmax(0,1fr) 28px; align-items:center; gap:10px; font-size:13.5px}
+.hb .t{height:12px; background:var(--raise); border-radius:4px; overflow:hidden}
+.hb .t i{display:block; height:100%; background:var(--red); border-radius:0 4px 4px 0}
+.hb b{text-align:right; font-variant-numeric:tabular-nums; font-weight:600}
+.scores{display:flex; flex-wrap:wrap; gap:8px}
+.sc{display:grid; justify-items:center; gap:2px; min-width:64px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel)}
+.sc b{font-family:var(--f-disp); font-weight:800; font-size:24px; line-height:1}
+.sc span{font-size:12px; color:var(--ink-3)}
+
+/* ===== momentos ===== */
+.moments{display:grid; gap:0; border-left:2px solid var(--line-2); margin-left:6px}
+.mo{position:relative; padding:0 0 18px 20px; display:grid; gap:2px; text-decoration:none; color:inherit}
+.mo::before{content:""; position:absolute; left:-7px; top:5px; width:12px; height:12px; border-radius:50%; background:var(--panel); border:3px solid var(--red)}
+.mo.t::before{border-color:var(--gold)}
+.mo .when{font-size:12.5px; color:var(--ink-3)}
+.mo b{font-weight:700}
+.mo:hover b{text-decoration:underline}
+
+/* ===== pills ===== */
+.res{display:inline-grid; place-items:center; width:24px; height:24px; border-radius:6px; font-weight:700; font-size:12.5px; color:#fff; flex:none}
+.res.V{background:var(--v)} .res.E{background:var(--e)} .res.D{background:var(--d)}
+.tag{display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--raise); color:var(--ink-2); white-space:nowrap}
+.tag.t{background:color-mix(in srgb, var(--gold) 16%, transparent); color:var(--gold)}
+.tag.c{background:var(--red-dim); color:var(--red)}
+.form{display:flex; gap:3px}
+.form .res{width:18px; height:18px; font-size:10.5px; border-radius:4px}
+
+/* ===== lista de jogos ===== */
+.filters{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.filters input[type=search],.filters select{height:38px; border:1px solid var(--line-2); background:var(--panel); border-radius:8px; padding:0 12px; min-width:0}
+.filters input[type=search]{flex:1 1 200px}
+.seg{display:flex; border:1px solid var(--line-2); border-radius:8px; overflow:hidden; background:var(--panel)}
+.seg button{border:0; background:none; padding:0 12px; height:36px; font-weight:600; font-size:13.5px; color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
+.chk{display:inline-flex; gap:6px; align-items:center; font-size:13.5px; color:var(--ink-2)}
+.season{display:grid; gap:8px}
+.season-h{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding-top:8px}
+.season-h h3{font-family:var(--f-disp); font-weight:900; font-size:30px; line-height:1}
+.season-h span{font-size:13.5px; color:var(--ink-2)}
+.games{display:grid; gap:6px}
+.g{display:grid; grid-template-columns:62px minmax(0,1fr) auto; align-items:center; gap:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 14px; text-decoration:none; color:inherit; position:relative}
+.g:hover{border-color:var(--line-2)}
+.g .dt{display:grid; line-height:1.1; border-right:1px dashed var(--line-2); padding-right:12px}
+.g .dt b{font-family:var(--f-disp); font-weight:800; font-size:22px}
+.g .dt span{font-size:11.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em}
+.g .who{display:grid; gap:4px; min-width:0}
+.g .who strong{font-weight:600; font-size:15.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.g .who .tags{display:flex; gap:4px; flex-wrap:wrap}
+.g .scr{display:flex; align-items:center; gap:10px}
+.g .scr b{font-family:var(--f-disp); font-weight:800; font-size:26px; letter-spacing:.02em}
+.empty{padding:28px; text-align:center; color:var(--ink-2); border:1px dashed var(--line-2); border-radius:12px}
+
+/* ===== ingresso (detalhe) ===== */
+.back{display:inline-flex; gap:6px; color:var(--ink-2); text-decoration:none; font-weight:600; font-size:14px}
+.ticket{display:grid; grid-template-columns:minmax(0,1fr) 220px; background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; position:relative}
+.ticket .main{padding:0 0 20px}
+.ticket .main > .stripes{height:8px}
+.ticket .hd{display:flex; justify-content:space-between; gap:12px; padding:16px 22px 0; flex-wrap:wrap}
+.ticket .match{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:16px; padding:18px 22px 6px}
+.ticket .team{font-family:var(--f-disp); font-weight:800; font-size:clamp(24px,5vw,40px); text-transform:uppercase; line-height:.95; overflow-wrap:anywhere}
+.ticket .team.away{text-align:right}
+.ticket .score{font-family:var(--f-disp); font-weight:900; font-size:clamp(56px,11vw,96px); line-height:.85; display:flex; gap:10px; align-items:center}
+.ticket .score i{font-style:normal; font-size:.45em; color:var(--ink-3)}
+.ticket .when{padding:6px 22px 0; color:var(--ink-2); font-size:14.5px}
+.ticket .tags{display:flex; gap:6px; flex-wrap:wrap; padding:12px 22px 0}
+.stub{border-left:2px dashed var(--line-2); padding:20px 18px; display:grid; gap:12px; align-content:start; background:var(--raise); position:relative}
+.stub::before,.stub::after{content:""; position:absolute; left:-11px; width:20px; height:20px; border-radius:50%; background:var(--bg); border:1px solid var(--line)}
+.stub::before{top:-11px} .stub::after{bottom:-11px}
+.field{display:grid; gap:1px}
+.field span{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); font-weight:600}
+.field b{font-family:var(--f-mono); font-weight:500; font-size:14px}
+.field b.todo{color:var(--ink-3); font-family:var(--f-ui); font-weight:500; font-style:italic}
+.warn{display:flex; gap:10px; padding:10px 14px; border-radius:10px; background:color-mix(in srgb, var(--gold) 14%, transparent); color:var(--ink); font-size:14px}
+.ctx{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px}
+.ctx .rec .v{font-size:30px}
+.note{margin:0; font-size:16px; max-width:65ch}
+.photos{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+.photos figure{margin:0; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:var(--raise); max-width:100%}
+.photos img{width:100%; height:100%; object-fit:cover; display:block}
+.drop{aspect-ratio:4/3; border:2px dashed var(--line-2); border-radius:10px; display:grid; place-items:center; text-align:center; color:var(--ink-2); font-size:13.5px; padding:12px; cursor:pointer; background:var(--panel); max-width:100%}
+.drop:hover{border-color:var(--red); color:var(--red)}
+.drop input{position:absolute; width:1px; height:1px; opacity:0}
+.drop b{display:block; font-size:24px; line-height:1; margin-bottom:4px}
+.pager{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.pager a{color:var(--ink-2); text-decoration:none; font-size:14px; font-weight:600}
+
+/* ===== form ===== */
+.frm{display:grid; gap:18px; max-width:760px}
+.fs{display:grid; gap:12px; border:0; padding:0; margin:0}
+.fs legend{font-family:var(--f-disp); font-weight:800; font-size:22px; text-transform:uppercase; padding:0; margin-bottom:4px}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px}
+.in{display:grid; gap:5px; font-size:13px; font-weight:600; color:var(--ink-2); min-width:0}
+.in input,.in select,.in textarea{height:42px; border:1px solid var(--line-2); border-radius:8px; background:var(--panel); padding:0 12px; font-weight:400; font-size:15px; color:var(--ink); width:100%}
+.in textarea{height:auto; min-height:90px; padding:10px 12px; resize:vertical}
+.in small{font-weight:400; color:var(--ink-3)}
+.scoreline{display:grid; grid-template-columns:minmax(0,1fr) 72px auto 72px minmax(0,1fr); gap:10px; align-items:end}
+.scoreline .x{font-family:var(--f-disp); font-weight:800; font-size:28px; padding-bottom:4px; color:var(--ink-3)}
+.scoreline input[type=number]{font-family:var(--f-disp); font-weight:800; font-size:26px; text-align:center}
+.sport-fixed{height:42px; display:flex; align-items:center; font-family:var(--f-disp); font-weight:800; font-size:22px; text-transform:uppercase}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chips label{display:inline-flex}
+.chips input{position:absolute; opacity:0; width:1px; height:1px}
+.chips span{padding:6px 12px; border-radius:999px; border:1px solid var(--line-2); font-size:13.5px; font-weight:600; cursor:pointer; background:var(--panel)}
+.chips input:checked+span{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.chips input:focus-visible+span{outline:2px solid var(--red); outline-offset:2px}
+.btn{height:44px; padding:0 20px; border-radius:10px; border:0; background:var(--red); color:var(--red-ink); font-weight:700; font-size:15px}
+.btn.ghost{background:none; border:1px solid var(--line-2); color:var(--ink)}
+.actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.proto{font-size:13px; color:var(--ink-3)}
+.toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:14px; z-index:40; max-width:calc(100% - 32px)}
+
+@media (max-width:760px){
+  .board{grid-template-columns:1fr}
+  .board .r{border-left:0; border-top:1px solid #ffffff14}
+  .two{grid-template-columns:1fr}
+  .ticket{grid-template-columns:1fr}
+  .stub{border-left:0; border-top:2px dashed var(--line-2); grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stub::before,.stub::after{top:-11px; bottom:auto}
+  .stub::before{left:-11px} .stub::after{left:auto; right:-11px}
+  .scoreline{grid-template-columns:minmax(0,1fr) 64px auto 64px; }
+  .scoreline .opp{grid-column:1/-1; grid-row:1}
+}
+@media (max-width:440px){
+  .g{grid-template-columns:52px minmax(0,1fr) auto; gap:10px; padding:10px 12px}
+  .g .scr .res{display:none}
+  .facts b{font-size:22px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .view{animation:in .25s ease-out}
+  @keyframes in{from{transform:translateY(4px)}to{transform:none}}
+}
+</style>
+
+<header class="top">
+  <div class="stripes"></div>
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="#resumo"><b>Diário do Leão</b><span>meus jogos do Sport</span></a>
+    </div>
+    <nav class="tabs" aria-label="Seções">
+      <a href="#resumo" data-v="resumo">Resumo</a>
+      <a href="#jogos" data-v="jogos">Jogos</a>
+      <a href="#adversarios" data-v="adversarios">Adversários</a>
+      <a href="#registrar" data-v="registrar" class="cta">Registrar jogo</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const RAW = `
+2009-07-12 1x0 Goiás
+2009-09-27 2x1 Santo André
+2012-06-06 2x1 Palmeiras
+2013-06-11 0x2 Bragantino
+2013-09-17 1x0 Guaratinguetá
+2014-07-16 1x0 Botafogo*
+2014-08-20 2x1 Palmeiras
+2014-09-27 0x0 Cruzeiro
+2014-11-09 2x2 Flamengo
+2014-11-23 2x2 Fluminense
+2015-06-13 2x1 Joinville
+2015-06-20 2x1 Vasco*
+2015-07-12 2x2 Palmeiras*
+2015-07-19 2x0 São Paulo
+2015-08-02 0x0 Cruzeiro*
+2015-08-26 4x1 Bahia*
+2015-08-30 0x1 Flamengo*
+2015-10-18 4x1 Atlético-MG
+2015-11-29 2x0 Corinthians*
+2016-05-24 2x2 Corinthians
+2016-06-04 1x3 Palmeiras*
+2016-07-30 2x0 Athletico-PR
+2016-10-16 1x0 Vitória
+2017-04-02 3x1 Campinense
+2017-04-16 3x2 Náutico*
+2017-06-12 1x3 Vitória
+2017-07-02 1x0 Athletico-PR
+2017-07-13 3x0 Chapecoense
+2017-07-23 0x2 Palmeiras
+2017-11-08 1x2 Botafogo
+2017-11-19 1x0 Bahia
+2018-05-20 1x1 Corinthians
+2018-06-13 0x0 Grêmio
+2018-10-05 2x1 Internacional
+2018-11-18 0x1 Flamengo
+2019-02-28 3x1 Afogados
+2019-05-11 0x0 Figueirense
+2019-08-01 1x1 Coritiba
+2019-08-17 3x0 Botafogo-SP
+2021-10-17 0x0 Santos
+2021-10-31 2x0 Atlético-GO
+2021-11-18 1x0 Bahia
+2022-05-06 2x0 Tombense
+2022-07-09 2x0 Londrina
+2022-07-28 2x1 Guarani
+2022-08-02 1x1 Criciúma
+2022-08-13 4x0 CSA
+2022-08-23 1x0 Chapecoense
+2022-08-30 1x0 Novorizontino
+2022-10-09 3x1 Cruzeiro
+2022-10-16 1x1 Vasco
+2023-01-21 2x0 ABC
+2023-03-11 2x0 Santa Cruz
+2023-03-18 0x0 Santa Cruz
+2023-03-26 4x0 CRB
+2023-03-29 1x0 ABC
+2023-04-22 2x0 Retrô
+2023-04-26 2x0 Coritiba
+2023-05-03 1x0 Ceará
+2023-07-28 2x0 CRB
+2023-08-05 1x0 Novorizontino
+2023-08-26 1x2 Ituano
+2023-09-09 3x3 Criciúma
+2023-09-23 4x0 Londrina
+2023-11-10 0x0 Atlético-GO
+2023-11-25 4x1 Sampaio Corrêa
+2024-04-10 2x1 Ceará
+2024-05-22 1x0 Atlético-MG
+2024-05-26 1x4 Fortaleza
+2024-10-07 2x1 Ceará
+2024-11-24 2x1 Santos
+2025-02-05 0x2 Fortaleza
+2025-03-09 2x0 Santa Cruz
+2025-04-02 1x2 Retrô
+2025-04-06 1x2 Palmeiras
+2025-04-16 0x1 Bragantino
+2025-05-11 0x4 Cruzeiro
+2025-05-16 2x2 São Paulo
+2025-05-25 1x1 Internacional
+2025-07-20 0x1 Botafogo
+2025-07-26 2x2 Santos
+2025-08-02 0x0 Bahia
+2025-09-21 1x0 Corinthians
+2026-01-31 2x1 Santa Cruz
+2026-02-21 3x2 Retrô
+2026-03-01 3x3 Náutico
+2026-04-13 2x2 Avaí
+2026-05-03 2x0 Ceará
+2026-05-28 0x2 Fortaleza
+2026-07-27 1x1 Cuiabá
+2026-08-14 2x1 Londrina
+2026-10-06 2x1 São Bernardo
+2026-10-16 0x2 Fortaleza
+2026-10-23 2x1 Criciúma
+`;
+
+// Observações da sua lista, ligadas pela data do jogo.
+const EXTRA = {
+  '2016-05-24': {tags:['Base · Sub-17'], comp:'Copa do Brasil Sub-17', note:'Copa do Brasil sub-17.'},
+  '2019-05-11': {tags:['Despedida do Magrão'], note:'MAGRÃO!!'},
+  '2023-01-21': {publico:10253},
+  '2023-03-29': {note:'Jogo disputado em dois dias: começou em 29/03 e terminou em 30/03/2023.'},
+  '2023-04-22': {tags:['Título'], comp:'Campeonato Pernambucano', note:'Campeão pernambucano.'},
+  '2023-05-03': {tags:['Final'], comp:'Copa do Nordeste', note:'Final da Copa do Nordeste.'},
+  '2024-11-24': {tags:['Acesso'], note:'Jogo do acesso.'},
+  '2025-04-02': {tags:['Título'], comp:'Campeonato Pernambucano', note:'Tricampeão pernambucano.'},
+  '2025-05-16': {warn:'Na sua lista este jogo aparece entre 02/08 e 21/09/2025, mas com data 16/05/2025. Confirme a data.'},
+};
+const CLASSICOS = {'Náutico':'Clássico dos Clássicos', 'Santa Cruz':'Clássico das Multidões'};
+const COMPS = ['Campeonato Pernambucano','Copa do Nordeste','Brasileirão Série A','Brasileirão Série B','Copa do Brasil','Copa Sul-Americana','Copa do Brasil Sub-17','Amistoso','Outra'];
+const STADIUMS = ['Ilha do Retiro','Arena de Pernambuco','Arruda','Aflitos','Outro'];
+const WD = ['dom','seg','ter','qua','qui','sex','sáb'];
+const WD_FULL = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+let games = RAW.trim().split('\n').map((line, i) => {
+  const [, d, s, a, o, star] = line.match(/^(\S+) (\d+)x(\d+) (.+?)(\*)?$/);
+  const x = EXTRA[d] || {};
+  const tags = [...(x.tags || [])];
+  if (CLASSICOS[o]) tags.push(CLASSICOS[o]);
+  return {id:i+1, d, s:+s, a:+a, o, star:!!star, tags, comp:x.comp||'', note:x.note||'', publico:x.publico||null,
+          estadio:'', setor:'', com:'', warn:x.warn||'', photos:[]};
+});
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const res = g => g.s > g.a ? 'V' : g.s < g.a ? 'D' : 'E';
+const dt = d => new Date(d + 'T12:00:00');
+const fmt = d => d.split('-').reverse().join('/');
+const fmtLong = d => { const x = dt(d); return `${WD_FULL[x.getDay()]}, ${x.getDate()} de ${MON[x.getMonth()]} de ${x.getFullYear()}`; };
+const pct = n => (n * 100).toFixed(1).replace('.', ',') + '%';
+const sorted = () => [...games].sort((x, y) => x.d.localeCompare(y.d) || x.id - y.id);
+const pill = r => `<span class="res ${r}" title="${{V:'Vitória',E:'Empate',D:'Derrota'}[r]}">${r}</span>`;
+const tagHtml = t => `<span class="tag ${/Título|Acesso|Final/.test(t) ? 't' : /Clássico/.test(t) ? 'c' : ''}">${esc(t)}</span>`;
+
+function record(list){
+  const r = {J:list.length, V:0, E:0, D:0, GP:0, GC:0};
+  for (const g of list){ r[res(g)]++; r.GP += g.s; r.GC += g.a; }
+  r.apr = r.J ? (3*r.V + r.E) / (3*r.J) : 0;
+  return r;
+}
+
+function streaks(list){
+  let un = 0, w = 0, best = {n:0}, bestW = {n:0}, unStart, wStart;
+  list.forEach((g, i) => {
+    if (res(g) !== 'D'){ if (!un) unStart = i; un++; if (un > best.n) best = {n:un, from:list[unStart], to:g}; } else un = 0;
+    if (res(g) === 'V'){ if (!w) wStart = i; w++; if (w > bestW.n) bestW = {n:w, from:list[wStart], to:g}; } else w = 0;
+  });
+  return {best, bestW, current:un};
+}
+
+/* ================= views ================= */
+const app = document.getElementById('app');
+
+function viewResumo(){
+  const L = sorted(), r = record(L), st = streaks(L);
+  const first = L[0], last = L[L.length - 1];
+  const margin = g => g.s - g.a;
+  const bigWin = Math.max(...L.map(margin)), bigLoss = Math.min(...L.map(margin));
+  const wins = L.filter(g => margin(g) === bigWin), losses = L.filter(g => margin(g) === bigLoss);
+  const goals = Math.max(...L.map(g => g.s + g.a)), goalsG = L.filter(g => g.s + g.a === goals);
+  const cs = L.filter(g => g.a === 0).length;
+  const cl = record(L.filter(g => CLASSICOS[g.o]));
+
+  const byOpp = groupOpp(L);
+  const most = byOpp[0];
+  const fregues = [...byOpp].filter(o => o.r.J >= 3).sort((a, b) => b.r.apr - a.r.apr || b.r.J - a.r.J)[0];
+  const carrasco = [...byOpp].filter(o => o.r.J >= 3).sort((a, b) => a.r.apr - b.r.apr || b.r.J - a.r.J)[0];
+
+  const seg = (k, n) => `<i style="width:${n / r.J * 100}%; background:var(--${k.toLowerCase()})"></i>`;
+  const lk = g => `#jogo-${g.id}`;
+  const gl = g => `${g.s}x${g.a} ${esc(g.o)} <span class="mono">${fmt(g.d)}</span>`;
+
+  const wd = Array(7).fill(0); L.forEach(g => wd[dt(g.d).getDay()]++);
+  const wdMax = Math.max(...wd);
+  const order = [0,6,3,5,2,4,1].sort((a, b) => wd[b] - wd[a]);
+
+  const sc = {}; L.forEach(g => { const k = `${g.s}x${g.a}`; sc[k] = (sc[k] || 0) + 1; });
+  const topSc = Object.entries(sc).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+  const moments = L.filter(g => g.tags.some(t => /Título|Acesso|Final|Despedida/.test(t)) || g.publico);
+
+  return `<section class="view">
+    <div class="board">
+      <div class="l">
+        <span class="kick" style="color:#a59c9e">${fmt(first.d)} → ${fmt(last.d)}</span>
+        <div class="big n">${r.J}<small>jogos</small></div>
+        <p class="sub">torcendo pelo Sport desde 2009. ${pct(r.apr)} de aproveitamento nos jogos em que você estava lá.</p>
+      </div>
+      <div class="r">
+        <div class="vde">
+          <div><b class="n">${r.V}</b><span><i style="background:var(--v)"></i>vitórias</span></div>
+          <div><b class="n">${r.E}</b><span><i style="background:var(--e)"></i>empates</span></div>
+          <div><b class="n">${r.D}</b><span><i style="background:var(--d)"></i>derrotas</span></div>
+        </div>
+        <div class="rb" role="img" aria-label="${r.V} vitórias, ${r.E} empates, ${r.D} derrotas">${seg('V', r.V)}${seg('E', r.E)}${seg('D', r.D)}</div>
+        <div class="facts">
+          <div><b class="n">${r.GP}</b>gols do Sport</div>
+          <div><b class="n">${r.GC}</b>gols sofridos</div>
+          <div><b class="n">${(r.GP / r.J).toFixed(2).replace('.', ',')}</b>gols do Sport por jogo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Recordes</h2><p>Contando só os jogos em que você foi.</p></div>
+      <div class="recs">
+        <a class="rec" href="${lk(st.best.to)}"><span class="kick">Maior invencibilidade</span><div class="v n">${st.best.n}<em>jogos</em></div><p>Sem ver o Sport perder de ${fmt(st.best.from.d)} a ${fmt(st.best.to.d)}.</p></a>
+        <a class="rec" href="${lk(st.bestW.to)}"><span class="kick">Vitórias seguidas</span><div class="v n">${st.bestW.n}<em>jogos</em></div><p>De ${fmt(st.bestW.from.d)} a ${fmt(st.bestW.to.d)}.</p></a>
+        <a class="rec" href="${lk(wins[0])}"><span class="kick">Maior goleada</span><div class="v n">${wins[0].s}x${wins[0].a}</div><p>${wins.map(gl).join('<br>')}</p></a>
+        <a class="rec" href="${lk(losses[0])}"><span class="kick">Pior derrota</span><div class="v n">${losses[0].s}x${losses[0].a}</div><p>${losses.map(gl).join('<br>')}</p></a>
+        <a class="rec" href="${lk(goalsG[0])}"><span class="kick">Jogo com mais gols</span><div class="v n">${goals}<em>gols</em></div><p>${goalsG.map(gl).join('<br>')}</p></a>
+        <div class="rec"><span class="kick">Sem sofrer gol</span><div class="v n">${cs}<em>jogos</em></div><p>${pct(cs / r.J)} dos jogos com o goleiro do Sport zerado.</p></div>
+        <div class="rec"><span class="kick">Clássicos</span><div class="v n">${cl.V}V ${cl.E}E ${cl.D}D</div><p>${cl.J} jogos contra Santa Cruz e Náutico${cl.D === 0 ? ', sem nenhuma derrota' : ''}.</p></div>
+        <a class="rec" href="#adversarios"><span class="kick">Adversário mais visto</span><div class="v">${esc(most.o)}</div><p>${most.r.J} jogos: ${most.r.V}V ${most.r.E}E ${most.r.D}D.</p></a>
+        <a class="rec" href="#adversarios"><span class="kick">Freguês</span><div class="v">${esc(fregues.o)}</div><p>${fregues.r.V}V ${fregues.r.E}E ${fregues.r.D}D em ${fregues.r.J} jogos (${pct(fregues.r.apr)}).</p></a>
+        <a class="rec" href="#adversarios"><span class="kick">Carrasco</span><div class="v">${esc(carrasco.o)}</div><p>${carrasco.r.V}V ${carrasco.r.E}E ${carrasco.r.D}D em ${carrasco.r.J} jogos, gols ${carrasco.r.GP}x${carrasco.r.GC}.</p></a>
+      </div>
+    </div>
+
+    <div class="sec card">
+      <div class="sec-h"><h2>Por temporada</h2>
+        <div class="legend"><span><i style="background:var(--v)"></i>Vitória</span><span><i style="background:var(--e)"></i>Empate</span><span><i style="background:var(--d)"></i>Derrota</span></div>
+      </div>
+      <div class="chart" id="chart"></div>
+      <details class="tbl"><summary>Ver como tabela</summary><div class="scroll">${seasonTable(L)}</div></details>
+    </div>
+
+    <div class="two">
+      <div class="sec card">
+        <div class="sec-h"><h2>Dia da semana</h2></div>
+        <div class="hbars">${order.map(i => `<div class="hb"><span>${WD[i]}</span><div class="t"><i style="width:${wd[i] / wdMax * 100}%"></i></div><b>${wd[i]}</b></div>`).join('')}</div>
+      </div>
+      <div class="sec card">
+        <div class="sec-h"><h2>Placares mais comuns</h2></div>
+        <div class="scores">${topSc.map(([k, n]) => `<div class="sc"><b>${k}</b><span>${n}×</span></div>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Momentos</h2><p>Jogos com observação especial na sua lista.</p></div>
+      <div class="moments">${moments.map(g => `<a class="mo ${g.tags.includes('Título') ? 't' : ''}" href="${lk(g)}">
+        <span class="when">${fmt(g.d)}</span><b>Sport ${g.s}x${g.a} ${esc(g.o)}</b>
+        <span style="color:var(--ink-2); font-size:14px">${esc(g.note || (g.publico ? `Público de ${g.publico.toLocaleString('pt-BR')}` : ''))}</span></a>`).join('')}</div>
+    </div>
+  </section>`;
+}
+
+function seasonsData(L){
+  const ys = {}; L.forEach(g => { const y = +g.d.slice(0, 4); (ys[y] ??= {V:0, E:0, D:0})[res(g)]++; });
+  const keys = Object.keys(ys).map(Number), out = [];
+  for (let y = Math.min(...keys); y <= Math.max(...keys); y++) out.push({y, ...(ys[y] || {V:0, E:0, D:0})});
+  return out;
+}
+function seasonTable(L){
+  return `<table><thead><tr><th>Ano</th><th class="num">J</th><th class="num">V</th><th class="num">E</th><th class="num">D</th><th class="num">Aprov.</th></tr></thead><tbody>${
+    seasonsData(L).filter(s => s.V + s.E + s.D).map(s => { const j = s.V + s.E + s.D;
+      return `<tr><td>${s.y}</td><td class="num">${j}</td><td class="num">${s.V}</td><td class="num">${s.E}</td><td class="num">${s.D}</td><td class="num">${pct((3*s.V + s.E) / (3*j))}</td></tr>`; }).join('')
+  }</tbody></table>`;
+}
+
+function drawChart(){
+  const el = document.getElementById('chart'); if (!el) return;
+  const data = seasonsData(sorted());
+  const W = 720, H = 240, pl = 28, pr = 6, pt = 18, pb = 26;
+  const max = Math.ceil(Math.max(...data.map(s => s.V + s.E + s.D)) / 5) * 5;
+  const step = (W - pl - pr) / data.length, bw = Math.min(28, step * .62);
+  const y = v => pt + (H - pt - pb) * (1 - v / max);
+  const topPath = (x, y0, w, h, r) => { r = Math.min(r, h, w / 2);
+    return `M${x},${y0 + h}V${y0 + r}Q${x},${y0} ${x + r},${y0}H${x + w - r}Q${x + w},${y0} ${x + w},${y0 + r}V${y0 + h}Z`; };
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Jogos por temporada, divididos em vitórias, empates e derrotas">`;
+  for (let v = 0; v <= max; v += 5) s += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  const best = data.reduce((a, b) => (b.V + b.E + b.D) > (a.V + a.E + a.D) ? b : a);
+  data.forEach((d, i) => {
+    const x = pl + i * step + (step - bw) / 2, tot = d.V + d.E + d.D;
+    let acc = 0; const segs = [['V', d.V], ['E', d.E], ['D', d.D]].filter(q => q[1]);
+    segs.forEach(([k, n], j) => {
+      const y1 = y(acc + n), y0 = y(acc), h = y0 - y1 - (acc ? 2 : 0);
+      s += j === segs.length - 1 ? `<path d="${topPath(x, y1, bw, h, 4)}" fill="var(--${k.toLowerCase()})"/>`
+                                 : `<rect x="${x}" y="${y1}" width="${bw}" height="${h}" fill="var(--${k.toLowerCase()})"/>`;
+      acc += n;
+    });
+    if (!tot) s += `<text x="${x + bw / 2}" y="${y(0) - 4}" text-anchor="middle">–</text>`;
+    if (d === best) s += `<text class="lbl" x="${x + bw / 2}" y="${y(tot) - 6}" text-anchor="middle">${tot}</text>`;
+    const show = i === 0 || i === data.length - 1 || d.y % 2 === 1;
+    if (show) s += `<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle">${String(d.y).slice(i === 0 || i === data.length - 1 ? 0 : 2)}</text>`;
+    s += `<rect class="hit" data-i="${i}" x="${pl + i * step}" y="${pt}" width="${step}" height="${H - pt - pb}" fill="transparent"/>`;
+  });
+  el.innerHTML = s + `</svg><div class="tip" hidden></div>`;
+  const tip = el.querySelector('.tip'), svg = el.querySelector('svg');
+  const show = e => { const r = e.target.closest('.hit'); if (!r) { tip.hidden = true; return; }
+    const d = data[+r.dataset.i], tot = d.V + d.E + d.D, sb = svg.getBoundingClientRect(), k = sb.width / W;
+    tip.innerHTML = tot ? `<b>${d.y}</b> · ${tot} jogo${tot > 1 ? 's' : ''}<br>${d.V}V ${d.E}E ${d.D}D · ${pct((3*d.V + d.E) / (3*tot))}` : `<b>${d.y}</b> · nenhum jogo`;
+    tip.style.left = Math.min(Math.max((+r.getAttribute('x') + step / 2) * k, 70), sb.width - 70) + 'px';
+    tip.style.top = y(tot) * k + 'px'; tip.hidden = false; };
+  svg.addEventListener('pointermove', show); svg.addEventListener('pointerdown', show);
+  svg.addEventListener('pointerleave', () => tip.hidden = true);
+}
+
+/* ---------- jogos ---------- */
+const F = {q:'', r:'', y:'', star:false};
+function viewJogos(){
+  const years = [...new Set(sorted().map(g => g.d.slice(0, 4)))].reverse();
+  return `<section class="view">
+    <div class="sec-h"><h2>Jogos</h2><p id="count"></p></div>
+    <div class="filters">
+      <input type="search" id="fq" placeholder="Buscar adversário, nota ou tag" value="${esc(F.q)}" aria-label="Buscar">
+      <div class="seg" role="group" aria-label="Resultado">${[['', 'Todos'], ['V', 'V'], ['E', 'E'], ['D', 'D']].map(([k, l]) => `<button type="button" data-r="${k}" aria-pressed="${F.r === k}">${l}</button>`).join('')}</div>
+      <select id="fy" aria-label="Ano"><option value="">Todos os anos</option>${years.map(y => `<option ${F.y === y ? 'selected' : ''}>${y}</option>`).join('')}</select>
+      <label class="chk"><input type="checkbox" id="fs" ${F.star ? 'checked' : ''}> marcados com *</label>
+    </div>
+    <div id="list" class="sec"></div>
+  </section>`;
+}
+function renderList(){
+  const q = F.q.trim().toLowerCase();
+  const L = sorted().reverse().filter(g => (!F.r || res(g) === F.r) && (!F.y || g.d.startsWith(F.y)) && (!F.star || g.star) &&
+    (!q || [g.o, g.note, g.comp, g.setor, ...g.tags].join(' ').toLowerCase().includes(q)));
+  document.getElementById('count').textContent = `${L.length} de ${games.length} jogos`;
+  const el = document.getElementById('list');
+  if (!L.length){ el.innerHTML = `<div class="empty">Nenhum jogo com esses filtros. Limpe a busca ou escolha outro ano.</div>`; return; }
+  const by = {}; L.forEach(g => (by[g.d.slice(0, 4)] ??= []).push(g));
+  el.innerHTML = Object.entries(by).sort((a, b) => b[0] - a[0]).map(([y, gs]) => { const r = record(gs);
+    return `<div class="season"><div class="season-h"><h3>${y}</h3><span>${r.J} jogo${r.J > 1 ? 's' : ''} · ${r.V}V ${r.E}E ${r.D}D · ${pct(r.apr)}</span></div>
+      <div class="games">${gs.map(rowHtml).join('')}</div></div>`; }).join('');
+}
+function rowHtml(g){
+  const x = dt(g.d), r = res(g);
+  const tags = [...g.tags, ...(g.comp && !g.tags.length ? [g.comp] : []), ...(g.star ? ['*'] : []), ...(g.photos.length ? [`${g.photos.length} foto${g.photos.length > 1 ? 's' : ''}`] : [])];
+  return `<a class="g" href="#jogo-${g.id}">
+    <div class="dt"><b class="n">${String(x.getDate()).padStart(2, '0')}</b><span>${MON[x.getMonth()]} · ${WD[x.getDay()]}</span></div>
+    <div class="who"><strong>${esc(g.o)}</strong>${tags.length ? `<div class="tags">${tags.map(tagHtml).join('')}</div>` : ''}</div>
+    <div class="scr"><b class="n">${g.s}<span style="color:var(--ink-3)">x</span>${g.a}</b>${pill(r)}</div></a>`;
+}
+
+/* ---------- detalhe ---------- */
+function viewJogo(id){
+  const L = sorted(), i = L.findIndex(g => g.id === id), g = L[i];
+  if (!g) return `<section class="view"><div class="empty">Esse jogo não existe. <a href="#jogos">Ver todos os jogos</a></div></section>`;
+  const before = L.slice(0, i), prevSame = before.filter(x => x.o === g.o), rs = record(prevSame);
+  const prev = L[i - 1], next = L[i + 1];
+  const days = prev ? Math.round((dt(g.d) - dt(prev.d)) / 864e5) : null;
+  let un = 0; for (let k = i; k >= 0 && res(L[k]) !== 'D'; k--) un++;
+  const rAll = record(L.slice(0, i + 1));
+  const fld = (label, v) => `<div class="field"><span>${label}</span>${v ? `<b>${esc(v)}</b>` : `<b class="todo">a preencher</b>`}</div>`;
+  const r = res(g);
+  return `<section class="view">
+    <a class="back" href="#jogos">← Jogos</a>
+    ${g.warn ? `<div class="warn"><b>!</b><span>${esc(g.warn)}</span></div>` : ''}
+    <article class="ticket">
+      <div class="main">
+        <div class="stripes"></div>
+        <div class="hd"><span class="kick">Jogo nº ${i + 1} de ${L.length}</span><span class="kick">${esc(g.comp || 'Competição a preencher')}</span></div>
+        <div class="match">
+          <div class="team">Sport</div>
+          <div class="score n">${g.s}<i>x</i>${g.a}</div>
+          <div class="team away">${esc(g.o)}</div>
+        </div>
+        <div class="when">${fmtLong(g.d)} · ${{V:'vitória', E:'empate', D:'derrota'}[r]}</div>
+        ${g.tags.length || g.star ? `<div class="tags">${g.tags.map(tagHtml).join('')}${g.star ? tagHtml('marcado com * na sua lista') : ''}</div>` : ''}
+      </div>
+      <aside class="stub">
+        ${fld('Estádio', g.estadio)}${fld('Setor', g.setor)}${fld('Público', g.publico ? g.publico.toLocaleString('pt-BR') : '')}${fld('Com quem', g.com)}
+      </aside>
+    </article>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Contexto</h2><p>Calculado com os jogos que você viu até este dia.</p></div>
+      <div class="ctx">
+        <div class="rec"><span class="kick">Contra o ${esc(g.o)}</span><div class="v">${prevSame.length ? `${prevSame.length + 1}º jogo` : 'Primeira vez'}</div>
+          <p>${prevSame.length ? `Antes deste: ${rs.V}V ${rs.E}E ${rs.D}D.` : 'Você nunca tinha visto esse confronto.'}</p></div>
+        <div class="rec"><span class="kick">Sequência invicta</span><div class="v n">${un}<em>jogo${un === 1 ? '' : 's'}</em></div>
+          <p>${r === 'D' ? 'A derrota encerrou a sequência.' : 'Sem ver o Sport perder, contando este jogo.'}</p></div>
+        <div class="rec"><span class="kick">Desde o jogo anterior</span><div class="v n">${days === null ? '–' : days}<em>${days === null ? '' : days === 1 ? 'dia' : 'dias'}</em></div>
+          <p>${prev ? `${fmt(prev.d)}, ${prev.s}x${prev.a} ${esc(prev.o)}.` : 'Seu primeiro jogo registrado.'}</p></div>
+        <div class="rec"><span class="kick">Aproveitamento até aqui</span><div class="v n">${pct(rAll.apr)}</div>
+          <p>${rAll.V}V ${rAll.E}E ${rAll.D}D nos seus ${rAll.J} primeiros jogos.</p></div>
+      </div>
+    </div>
+
+    ${g.note ? `<div class="sec"><div class="sec-h"><h2>Anotação</h2></div><p class="note">${esc(g.note)}</p></div>` : ''}
+
+    <div class="sec">
+      <div class="sec-h"><h2>Fotos</h2><p>${g.photos.length ? `${g.photos.length} foto${g.photos.length > 1 ? 's' : ''}` : 'Nenhuma foto ainda.'}</p></div>
+      <div class="photos">
+        ${g.photos.map(u => `<figure><img src="${u}" alt="Foto do jogo contra ${esc(g.o)}"></figure>`).join('')}
+        <label class="drop"><input type="file" accept="image/*" multiple id="up" data-id="${g.id}"><span><b>+</b>Adicionar fotos do estádio</span></label>
+      </div>
+    </div>
+
+    <div class="pager">
+      ${prev ? `<a href="#jogo-${prev.id}">← ${fmt(prev.d)} · ${esc(prev.o)}</a>` : '<span></span>'}
+      ${next ? `<a href="#jogo-${next.id}">${fmt(next.d)} · ${esc(next.o)} →</a>` : ''}
+    </div>
+  </section>`;
+}
+
+/* ---------- adversários ---------- */
+function groupOpp(L){
+  const m = {}; L.forEach(g => (m[g.o] ??= []).push(g));
+  return Object.entries(m).map(([o, gs]) => ({o, gs, r:record(gs), last:gs[gs.length - 1]})).sort((a, b) => b.r.J - a.r.J || b.r.apr - a.r.apr || a.o.localeCompare(b.o));
+}
+let oppSort = {k:'J', dir:-1};
+function viewAdversarios(){
+  return `<section class="view"><div class="sec-h"><h2>Adversários</h2><p>${groupOpp(sorted()).length} clubes diferentes. Toque no cabeçalho para ordenar.</p></div>
+    <div class="card scroll" style="padding:4px 8px" id="opp"></div></section>`;
+}
+function renderOpp(){
+  const cols = [['o', 'Adversário'], ['J', 'J'], ['V', 'V'], ['E', 'E'], ['D', 'D'], ['G', 'Gols'], ['apr', 'Aprov.'], ['f', 'Últimos']];
+  const val = (x, k) => k === 'o' ? x.o : k === 'G' ? x.r.GP - x.r.GC : k === 'f' ? x.last.d : x.r[k];
+  const L = groupOpp(sorted()).sort((a, b) => { const p = val(a, oppSort.k), q = val(b, oppSort.k);
+    return (typeof p === 'string' ? p.localeCompare(q) : p - q) * oppSort.dir || b.r.J - a.r.J; });
+  document.getElementById('opp').innerHTML = `<table><thead><tr>${cols.map(([k, l]) => `<th class="${k === 'o' || k === 'f' ? '' : 'num'}"><button type="button" data-k="${k}" style="border:0;background:none;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit">${l}${oppSort.k === k ? (oppSort.dir < 0 ? ' ↓' : ' ↑') : ''}</button></th>`).join('')}</tr></thead>
+  <tbody>${L.map(x => `<tr><td><b>${esc(x.o)}</b>${CLASSICOS[x.o] ? ` <span class="tag c">clássico</span>` : ''}</td><td class="num">${x.r.J}</td><td class="num">${x.r.V}</td><td class="num">${x.r.E}</td><td class="num">${x.r.D}</td>
+    <td class="num">${x.r.GP}x${x.r.GC}</td><td class="num">${pct(x.r.apr)}</td><td><a class="form" href="#jogo-${x.last.id}" title="Último: ${fmt(x.last.d)}">${x.gs.slice(-5).map(g => pill(res(g))).join('')}</a></td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------- registrar ---------- */
+function viewRegistrar(){
+  const opps = [...new Set(games.map(g => g.o))].sort((a, b) => a.localeCompare(b));
+  const today = '2026-10-31';
+  return `<section class="view">
+    <div class="sec-h"><h2>Registrar jogo</h2><p>Só data, adversário e placar são obrigatórios. O resto dá para completar depois.</p></div>
+    <form class="frm" id="frm" novalidate>
+      <fieldset class="fs"><legend>O jogo</legend>
+        <div class="grid">
+          <label class="in">Data<input type="date" id="f-d" required max="${today}" value="${today}"></label>
+          <label class="in">Competição<select id="f-comp"><option value="">Escolher depois</option>${COMPS.map(c => `<option>${c}</option>`).join('')}</select></label>
+          <label class="in">Fase ou rodada<input id="f-fase" placeholder="Ex.: 32ª rodada, final (volta)"></label>
+        </div>
+        <div class="scoreline">
+          <div class="in"><span>Mandante</span><div class="sport-fixed">Sport</div></div>
+          <label class="in">Gols<input type="number" id="f-s" min="0" max="20" inputmode="numeric" value="0"></label>
+          <span class="x">x</span>
+          <label class="in">Gols<input type="number" id="f-a" min="0" max="20" inputmode="numeric" value="0"></label>
+          <label class="in opp">Adversário<input id="f-o" list="opps" required placeholder="Ex.: Náutico"><datalist id="opps">${opps.map(o => `<option value="${esc(o)}">`).join('')}</datalist></label>
+        </div>
+      </fieldset>
+      <fieldset class="fs"><legend>Onde você estava</legend>
+        <div class="grid">
+          <label class="in">Estádio<select id="f-est">${STADIUMS.map(s => `<option>${s}</option>`).join('')}</select></label>
+          <label class="in">Setor<input id="f-setor" list="setores" placeholder="Ex.: Arquibancada"><datalist id="setores"><option value="Arquibancada"><option value="Cadeira"><option value="Social"><option value="Visitante"></datalist><small>A lista cresce com os setores que você já usou.</small></label>
+          <label class="in">Público<input type="number" id="f-pub" min="0" inputmode="numeric" placeholder="Ex.: 25000"></label>
+          <label class="in">Com quem<input id="f-com" placeholder="Ex.: pai, Lucas"></label>
+        </div>
+      </fieldset>
+      <fieldset class="fs"><legend>Destaques</legend>
+        <div class="chips">${['Título', 'Final', 'Acesso', 'Estreia', 'Despedida', 'Virada', 'Chuva', 'Jogo noturno'].map((t, i) => `<label><input type="checkbox" name="tg" value="${t}" id="tg${i}"><span>${t}</span></label>`).join('')}</div>
+        <label class="in">Anotação<textarea id="f-note" placeholder="Gol no fim, festa da torcida, o que você quiser lembrar"></textarea></label>
+      </fieldset>
+      <fieldset class="fs"><legend>Fotos</legend>
+        <div class="photos" id="f-prev"><label class="drop"><input type="file" accept="image/*" multiple id="f-ph"><span><b>+</b>Escolher fotos</span></label></div>
+      </fieldset>
+      <div class="actions"><button class="btn" type="submit">Salvar jogo</button><a class="btn ghost" href="#jogos" style="display:inline-grid;place-items:center;text-decoration:none">Cancelar</a>
+        <span class="proto">Protótipo: o jogo fica só nesta aba e some ao recarregar.</span></div>
+    </form>
+  </section>`;
+}
+let draftPhotos = [];
+
+/* ================= router ================= */
+function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3200); }
+function route(){
+  const h = location.hash.slice(1) || 'resumo';
+  const m = h.match(/^jogo-(\d+)$/);
+  const v = m ? 'jogos' : ['resumo', 'jogos', 'adversarios', 'registrar'].includes(h) ? h : 'resumo';
+  document.querySelectorAll('.tabs a').forEach(a => a.dataset.v === v ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  if (m) app.innerHTML = viewJogo(+m[1]);
+  else if (v === 'resumo'){ app.innerHTML = viewResumo(); drawChart(); }
+  else if (v === 'jogos'){ app.innerHTML = viewJogos(); renderList(); }
+  else if (v === 'adversarios'){ app.innerHTML = viewAdversarios(); renderOpp(); }
+  else { draftPhotos = []; app.innerHTML = viewRegistrar(); }
+  window.scrollTo(0, 0);
+}
+
+app.addEventListener('input', e => {
+  if (e.target.id === 'fq'){ F.q = e.target.value; renderList(); }
+});
+app.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'fy'){ F.y = t.value; renderList(); }
+  if (t.id === 'fs'){ F.star = t.checked; renderList(); }
+  if (t.id === 'up'){ const g = games.find(x => x.id === +t.dataset.id);
+    g.photos.push(...[...t.files].map(f => URL.createObjectURL(f))); route(); toast(`${t.files.length} foto(s) adicionada(s) neste protótipo.`); }
+  if (t.id === 'f-ph'){ const urls = [...t.files].map(f => URL.createObjectURL(f)); draftPhotos.push(...urls);
+    t.closest('.drop').insertAdjacentHTML('beforebegin', urls.map(u => `<figure><img src="${u}" alt="Foto escolhida"></figure>`).join('')); }
+});
+app.addEventListener('click', e => {
+  const b = e.target.closest('button[data-r]'); if (b){ F.r = b.dataset.r; app.querySelectorAll('[data-r]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderList(); }
+  const k = e.target.closest('button[data-k]'); if (k){ oppSort = {k:k.dataset.k, dir:oppSort.k === k.dataset.k ? -oppSort.dir : (k.dataset.k === 'o' ? 1 : -1)}; renderOpp(); }
+});
+app.addEventListener('submit', e => {
+  e.preventDefault();
+  const v = id => document.getElementById(id).value.trim();
+  const d = v('f-d'), o = v('f-o');
+  if (!d || !o){ toast(!d ? 'Escolha a data do jogo.' : 'Digite o adversário.'); document.getElementById(!d ? 'f-d' : 'f-o').focus(); return; }
+  const tags = [...document.querySelectorAll('input[name=tg]:checked')].map(x => x.value);
+  if (CLASSICOS[o]) tags.push(CLASSICOS[o]);
+  const id = Math.max(...games.map(g => g.id)) + 1;
+  games.push({id, d, s:+v('f-s') || 0, a:+v('f-a') || 0, o, star:false, tags, comp:v('f-comp'), note:v('f-note'),
+    publico:+v('f-pub') || null, estadio:v('f-est'), setor:v('f-setor'), com:v('f-com'), warn:'', photos:draftPhotos});
+  location.hash = `jogo-${id}`;
+  toast('Jogo salvo.');
+});
+addEventListener('hashchange', route);
+route();
+</script>
