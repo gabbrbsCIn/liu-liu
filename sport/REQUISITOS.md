@@ -20,6 +20,10 @@ Testei as fontes com os 94 jogos da lista.
 | **ESPN** (`site.api.espn.com`) | Grátis, sem chave | Não tem | Sim, desde 2009 | Placar, data, estádio, público, árbitro, escalação, formação, substituições, gols com minuto e autor, cartões, estatísticas (posse, chutes) | **Testada.** 84 dos 94 jogos encontrados, todos com o placar igual ao da lista |
 | **API-Football** (api-sports.io) | Grátis com 100 requisições/dia; pago a partir de US$ 19/mês | Lista "Pernambucano - 1" na cobertura | Sim | Partidas, escalações, eventos, estatísticas e jogadores; não traz público | **Não testada.** Precisa de chave gratuita para ver quais temporadas do Pernambucano existem |
 | SofaScore | Não tem API pública | Sim | Sim | Tudo, inclusive público | Bloqueia acesso automatizado (HTTP 403) e os termos proíbem uso. Descartada |
+| Wrappers do SofaScore (`sofascore-wrapper`, `aiosofascore`, revendas no RapidAPI) | Grátis / pago | Sim | Sim | Igual ao SofaScore | Funcionam abrindo um navegador ou usando cookies para passar pela proteção anti-robô. Frágeis e contra os termos. Descartados |
+| Transfermarkt (`felipeall/transfermarkt-api`, código aberto) | Grátis, hospedar por conta própria | Sim (no site) | Sim | Escalação, gols, técnicos | Não tem rota de jogos por time; a instância pública devolveu 403. Só como apoio |
+| apifootball.com | Pago, com teste | Lista "Pernambucano 1" | Sim | Partidas, escalações, eventos | Não testada |
+| ogol.com.br (zerozero) | Sem API pública | Sim, inclusive base | Sim | Tudo, inclusive público | Protegido contra acesso automatizado. Útil para conferir à mão |
 | football-data.org | Grátis | Não | Só Série A | Placar | Pouca cobertura do Sport. Descartada |
 | TheSportsDB | Grátis limitado / pago | Incerto | Parcial | Placar | Não vale a pena frente à ESPN |
 
