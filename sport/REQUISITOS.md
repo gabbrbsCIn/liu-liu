@@ -20,7 +20,7 @@ Testei as fontes com os 94 jogos da lista.
 | **ESPN** (`site.api.espn.com`) | Grátis, sem chave | Não tem | Sim, desde 2009 | Placar, data, estádio, público, árbitro, escalação, formação, substituições, gols com minuto e autor, cartões, estatísticas (posse, chutes) | **Testada.** 84 dos 94 jogos encontrados, todos com o placar igual ao da lista |
 | **API-Football** (api-sports.io) | Grátis com 100 requisições/dia; pago a partir de US$ 19/mês | Lista "Pernambucano - 1" na cobertura | Sim | Partidas, escalações, eventos, estatísticas e jogadores; não traz público | **Não testada.** Precisa de chave gratuita para ver quais temporadas do Pernambucano existem |
 | SofaScore | Não tem API pública | Sim | Sim | Tudo, inclusive público | Bloqueia acesso automatizado (HTTP 403) e os termos proíbem uso. Descartada |
-| Wrappers do SofaScore (`sofascore-wrapper`, `aiosofascore`, revendas no RapidAPI) | Grátis / pago | Sim | Sim | Igual ao SofaScore | Funcionam abrindo um navegador ou usando cookies para passar pela proteção anti-robô. Frágeis e contra os termos. Descartados |
+| Wrappers do SofaScore (seção 1.1) | Grátis | Sim | Sim | Igual ao SofaScore | Contornam a proteção anti-robô e vão contra os termos. Aceitável só como script pessoal rodado no meu computador, para os jogos que a ESPN não tem |
 | Transfermarkt (`felipeall/transfermarkt-api`, código aberto) | Grátis, hospedar por conta própria | Sim (no site) | Sim | Escalação, gols, técnicos | Não tem rota de jogos por time; a instância pública devolveu 403. Só como apoio |
 | apifootball.com | Pago, com teste | Lista "Pernambucano 1" | Sim | Partidas, escalações, eventos | Não testada |
 | ogol.com.br (zerozero) | Sem API pública | Sim, inclusive base | Sim | Tudo, inclusive público | Protegido contra acesso automatizado. Útil para conferir à mão |
@@ -51,10 +51,28 @@ Nenhuma fonte testada cobre os 94 jogos sozinha.
 - **Problema de qualidade:** três jogos aparecem com público exatamente 26.345, o que parece a capacidade do estádio, não o público pagante. O app precisa deixar corrigir o público à mão.
 - **Risco:** a API da ESPN não é documentada nem oficial. Pode mudar ou ser bloqueada sem aviso, e não tem termos claros para uso num produto público.
 
+### 1.1 Wrappers do SofaScore
+
+Levantamento de 31/10/2026 (versões no PyPI e código de cada pacote). Não deu para rodar nenhum no ambiente de nuvem, que bloqueia contorno de proteção anti-robô.
+
+| Pacote | Última versão | Como acessa | Serve para o Pernambucano? |
+|---|---|---|---|
+| `sofascore-wrapper` | 1.1.1, jun/2025 | Navegador Chromium (Playwright) | **Sim.** Busca por id de campeonato, temporada e rodada; tem escalação, eventos (gols, cartões) e estatísticas da partida. Sem versão nova há 16 meses e sem issues abertas |
+| `ScraperFC` | 4.5.0, abr/2026 | botasaurus / cloudscraper | Só com ajuste: os campeonatos ficam numa lista fixa (`comps.yaml`). Tem issue aberta de jun/2026 sobre erro ao buscar temporadas |
+| `soccerdata` | 2026.43.0, out/2026 | seleniumbase | Pouco útil: o leitor do SofaScore só traz calendário e tabela, e campeonatos fora da lista exigem configuração |
+| `LanusStats` | 2.1.13, out/2026 | nodriver / curl_cffi | Não: lista fixa de ligas (tem Brasileirão, não tem Pernambucano) |
+| `aiosofascore` | 0.1.2.0, jun/2026 | aiohttp + cookies do navegador | Pouco útil: só busca e últimos jogos do time |
+| `pysofascore` | 0.3.0, abr/2026 | curl_cffi | Pacote novo com só 3 versões, todas no mesmo dia |
+| `sofascrape` | 0.1.2, out/2025 | Playwright | Pacote pequeno, com 2 versões |
+| `sofascore-api` (2023), `sofascore` (2021) | — | — | Abandonados |
+| `@sindicuab/sofascore-api` (npm) | 0.1.7, nov/2025 | — | Para JavaScript; pouco usado |
+
+**Escolha:** `sofascore-wrapper`, rodado uma vez no meu computador para buscar os 9 jogos do Pernambucano, salvando o resultado num JSON que o app importa. O app não chama o SofaScore em funcionamento normal.
+
 ### Recomendação
 
 1. **ESPN como fonte principal na v1.** É grátis, não precisa de chave e cobre 89% dos jogos já registrados.
-2. **API-Football como segunda fonte**, para o Pernambucano e como alternativa se a ESPN cair. Próximo passo: criar uma chave gratuita e testar as temporadas do Pernambucano.
+2. **Pernambucano:** script pessoal com `sofascore-wrapper` (seção 1.1). Se ele parar de funcionar, testar a API-Football com chave gratuita.
 3. **Preenchimento à mão sempre disponível** para o que nenhuma API tiver: base, amistosos e estaduais antigos.
 4. **Guardar no banco tudo o que vier da API.** Cada partida é buscada uma vez e reaproveitada por todos os usuários. Isso protege contra mudanças na API e reduz requisições.
 5. Se o app virar público com muitos usuários, migrar para uma API paga com contrato (API-Football Pro ou Sportmonks). O código acessa as fontes por uma interface única (seção 8), então trocar de fonte não muda o resto.
@@ -107,7 +125,10 @@ A partida (dado público, igual para todos) fica separada da presença (o que é
 
 **Listas que crescem com o uso** (por usuário): setores, estádios manuais, acompanhantes.
 
-## 5. Vários usuários: montar o diário
+## 5. Montar o diário por período
+
+O app é pessoal (resposta de 31/10/2026). Esta seção vale para eu montar o meu diário; o modelo com partida separada da presença continua, porque facilita o cache da API e não custa nada.
+
 
 Fluxo para quem chega pela primeira vez:
 
@@ -121,10 +142,8 @@ Fluxo para quem chega pela primeira vez:
 O protótipo tem esse fluxo na aba **Montar diário**, com os jogos reais do Sport em 2025 e 2026.
 
 Implicações:
-- Login de verdade (e-mail com link mágico ou Google), não mais senha única.
-- Os dados de cada usuário (presenças, fotos, anotações) só são visíveis para ele.
-- A API é consultada por time e temporada, uma vez, e o resultado fica no banco para todos.
-- A v1 continua focada no Sport e em mim. O modelo já nasce multiusuário para não precisar reescrever depois.
+- Login com senha única, como no liu liu.
+- A API é consultada por time e temporada, uma vez, e o resultado fica no banco.
 
 ## 6. Funcionalidades
 
@@ -207,7 +226,7 @@ Outras para a v1 ou para depois:
 - **Next.js** (App Router) com páginas renderizadas no servidor e PWA para instalar no celular.
 - **Postgres** (Neon ou Supabase) em produção; PGlite no desenvolvimento.
 - **Armazenamento de fotos:** Vercel Blob ou Supabase Storage.
-- **Login:** e-mail com link mágico ou Google (Auth.js ou Supabase Auth).
+- **Login:** senha única (app pessoal).
 - **Rotina diária** que atualiza as partidas recentes dos times dos usuários.
 - **Repositório próprio** para o app (ver nota abaixo).
 
@@ -217,9 +236,8 @@ Este repositório (`gabbrbscin/f-t`) hoje contém o **liu liu**, o assistente fi
 
 ## 10. Perguntas em aberto
 
-1. Quer criar uma chave gratuita da API-Football para eu testar a cobertura do Pernambucano? Ela entra como segredo do ambiente, nunca no código.
+1. Posso escrever o script do `sofascore-wrapper` para você rodar no seu computador e trazer os 9 jogos do Pernambucano?
 2. As 4 datas corrigidas pela ESPN (Palmeiras 2016, Vitória 2017, Avaí 2026 e São Paulo 2025) estão certas?
-3. O app vai ser aberto para qualquer pessoa ou só para convidados (amigos, família)? Isso define o login e a escolha de API (grátis ou paga).
 4. Qual vai ser o nome do repositório novo?
 5. Quais setores você costuma usar? Viram a lista inicial de sugestões.
 
