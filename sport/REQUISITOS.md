@@ -238,8 +238,8 @@ Este repositório (`gabbrbscin/f-t`) hoje contém o **liu liu**, o assistente fi
 
 1. Posso escrever o script do `sofascore-wrapper` para você rodar no seu computador e trazer os 9 jogos do Pernambucano?
 2. As 4 datas corrigidas pela ESPN (Palmeiras 2016, Vitória 2017, Avaí 2026 e São Paulo 2025) estão certas?
-4. Qual vai ser o nome do repositório novo?
-5. Quais setores você costuma usar? Viram a lista inicial de sugestões.
+3. Qual vai ser o nome do repositório novo?
+4. Quais setores você costuma usar? Viram a lista inicial de sugestões.
 
 ## 11. Ideias para depois
 
