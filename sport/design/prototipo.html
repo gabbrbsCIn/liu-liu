@@ -59,7 +59,7 @@ h3{font-size:15px; font-weight:700}
 
 main{padding-block:24px 64px}
 .view{display:grid; gap:28px}
-.sec{display:grid; gap:14px}
+.sec{display:grid; gap:14px; align-content:start}
 .sec-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .sec-h p{margin:0; color:var(--ink-2); font-size:14px}
 .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px}
@@ -218,6 +218,25 @@ td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
 .btn.ghost{background:none; border:1px solid var(--line-2); color:var(--ink)}
 .actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 .proto{font-size:13px; color:var(--ink-3)}
+.src{grid-column:1/-1; font-size:11.5px; color:var(--ink-3)}
+.goals,.xi{margin:0; padding:0; list-style:none; display:grid; gap:6px}
+.goals li{display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:10px; align-items:baseline; font-size:14.5px; padding-left:10px; border-left:3px solid var(--line-2)}
+.goals li.us{border-color:var(--red)}
+.goals li span:last-child{font-size:12.5px; color:var(--ink-3)}
+.xi{grid-template-columns:repeat(2,minmax(0,1fr)); counter-reset:x; gap:4px 16px; font-size:14.5px}
+.muted{margin:0; color:var(--ink-2); font-size:14px}
+.hbars.wide .hb{grid-template-columns:minmax(90px,150px) minmax(0,1fr) 28px}
+.hbars.wide .hb span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.steps{display:grid; gap:18px; max-width:860px}
+.step{display:grid; gap:10px}
+.step h3{font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.pick{display:grid; gap:6px}
+.pick label{display:grid; grid-template-columns:22px 86px minmax(0,1fr) auto; gap:12px; align-items:center; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 14px; cursor:pointer; font-size:14.5px}
+.pick label:has(input:checked){border-color:var(--red); background:var(--red-dim)}
+.pick .c{font-size:12px; color:var(--ink-3); display:block}
+.pick .in-d{font-size:11.5px; color:var(--ink-3)}
+.sticky-act{position:sticky; bottom:calc(12px + env(safe-area-inset-bottom,0px)); display:flex; gap:12px; align-items:center; flex-wrap:wrap; background:var(--ink); color:var(--bg); padding:10px 12px 10px 16px; border-radius:12px}
+.sticky-act .btn{margin-left:auto}
 .toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:14px; z-index:40; max-width:calc(100% - 32px)}
 
 @media (max-width:760px){
@@ -226,6 +245,7 @@ td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
   .two{grid-template-columns:1fr}
   .ticket{grid-template-columns:1fr}
   .stub{border-left:0; border-top:2px dashed var(--line-2); grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pick label{grid-template-columns:22px 70px minmax(0,1fr) auto; gap:8px; padding:10px}
   .stub::before,.stub::after{top:-11px; bottom:auto}
   .stub::before{left:-11px} .stub::after{left:auto; right:-11px}
   .scoreline{grid-template-columns:minmax(0,1fr) 64px auto 64px; }
@@ -252,6 +272,7 @@ td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
       <a href="#resumo" data-v="resumo">Resumo</a>
       <a href="#jogos" data-v="jogos">Jogos</a>
       <a href="#adversarios" data-v="adversarios">Adversários</a>
+      <a href="#montar" data-v="montar">Montar diário</a>
       <a href="#registrar" data-v="registrar" class="cta">Registrar jogo</a>
     </nav>
   </div>
@@ -282,12 +303,12 @@ const RAW = `
 2015-10-18 4x1 Atlético-MG
 2015-11-29 2x0 Corinthians*
 2016-05-24 2x2 Corinthians
-2016-06-04 1x3 Palmeiras*
+2016-07-04 1x3 Palmeiras*
 2016-07-30 2x0 Athletico-PR
 2016-10-16 1x0 Vitória
 2017-04-02 3x1 Campinense
 2017-04-16 3x2 Náutico*
-2017-06-12 1x3 Vitória
+2017-06-18 1x3 Vitória
 2017-07-02 1x0 Athletico-PR
 2017-07-13 3x0 Chapecoense
 2017-07-23 0x2 Palmeiras
@@ -339,16 +360,16 @@ const RAW = `
 2025-04-06 1x2 Palmeiras
 2025-04-16 0x1 Bragantino
 2025-05-11 0x4 Cruzeiro
-2025-05-16 2x2 São Paulo
 2025-05-25 1x1 Internacional
 2025-07-20 0x1 Botafogo
 2025-07-26 2x2 Santos
 2025-08-02 0x0 Bahia
+2025-08-16 2x2 São Paulo
 2025-09-21 1x0 Corinthians
 2026-01-31 2x1 Santa Cruz
 2026-02-21 3x2 Retrô
 2026-03-01 3x3 Náutico
-2026-04-13 2x2 Avaí
+2026-04-11 2x2 Avaí
 2026-05-03 2x0 Ceará
 2026-05-28 0x2 Fortaleza
 2026-07-27 1x1 Cuiabá
@@ -357,6 +378,15 @@ const RAW = `
 2026-10-16 0x2 Fortaleza
 2026-10-23 2x1 Criciúma
 `;
+
+// Dados da API da ESPN (site.api.espn.com), por data do jogo. Gol: [minuto, S=Sport/A=adversário, jogador, pen|contra].
+const API = {"2009-07-12":{"id":"265942","c":"Brasileirão Série A","v":"Ilha do Retiro","r":"Leandro Vuaden","g":[["17'","S","Fabiano","pen"]],"xi":["Magrão","Elder Granja","Igor Nascimento Soares","Durval","César Lucena","Andrade","Sandro Goiano","Fabiano","Fumagalli","Dude","Ciro","Guto","Dutra"],"f":"","sb":["Vandinho","Andrade","Luciano Henrique"]},"2009-09-27":{"id":"266101","c":"Brasileirão Série A","v":"Ilha do Retiro","r":"Wagner Tardelli De Azevedo","g":[["21'","S","Juan Carlos Arce",""],["34'","A","Rodrigo Fabri",""],["68'","S","Vandinho",""]],"xi":["Magrão","Elder Granja","Juliano","Durval","Dutra","Moacir","César Lucena","Igor Nascimento Soares","Andrade","Hamilton Henio Ferreira Calheiros","Fabiano","Luciano Henrique","Paulinho","Fininho","Juan Carlos Arce","Vandinho"],"f":"","sb":["Juliano","F Adriano","Lincom"]},"2012-06-06":{"id":"341248","c":"Brasileirão Série A","v":"Ilha do Retiro","r":"Leandro Vuaden","g":[["15'","S","Marquinhos Paraná",""],["37'","A","Herná Barcos",""],["72'","S","Felipe Azevedo",""]],"xi":["Magrão","Moacir","Bruno Aguiar","Edcarlos","Tobi","Thiaguinho","Rivaldo","Rithely","Marquinhos Paraná","Felipe Azevedo","Jheimy"],"f":"","sb":["Hamilton Henio Ferreira Calheiros","Reinaldo","Milton Júnior"]},"2013-06-11":{"id":"365836","c":"Brasileirão Série B","v":"Ilha do Retiro","r":"Charles Hebert Cavalcante Ferreira","g":[["29'","A","Carlinhos",""],["57'","A","Magno Damasceno Santos da Cruz",""]],"xi":["Magrão","Marcelo","Gabriel Santos","Tobi","Renan","Lucas Lima","Rithely","(..) Camilo","Anderson","Felipe Azevedo","Marcos Aurélio"],"f":"","sb":["George Lucas","Nunes","Érico Junior"]},"2013-09-17":{"id":"366011","c":"Brasileirão Série B","v":"Ilha do Retiro","g":[["68'","S","Ailton",""]]},"2014-07-16":{"id":"390539","c":"Brasileirão Série A","v":"Ilha do Retiro","g":[["44'","S","Neto Baiano",""]],"xi":["Magrão","Durval","Ewerton Páscoa","René","Patric","Wendel","Rithely","Felipe Azevedo","Érico Junior","Neto Baiano","Zé Mário"],"f":"4-4-1-1","sb":["Leonardo","Danilo Barcelos","Ananias"]},"2014-08-20":{"id":"390484","c":"Brasileirão Série A","v":"Arena de Pernambuco","g":[["14'","A","Henrique Dourado",""],["23'","S","Fábio","contra"],["33'","S","Patric",""]],"xi":["Magrão","Durval","Oswaldo","René","Patric","Régis","Wendel","Rithely","Neto Baiano","Felipe Azevedo","Érico Junior"],"f":"4-3-3","sb":["Ananias","Diego Souza","Ibson Barreto da Silva"]},"2014-09-27":{"id":"390390","c":"Brasileirão Série A","v":"Arena de Pernambuco","xi":["Magrão","Durval","Henrique Mattos","René","Patric","Diego Souza","Wendel","Rithely","Neto Baiano","Ibson Barreto da Silva","Felipe Azevedo"],"f":"4-2-3-1","sb":["Danilo Barcelos","Willian","Augusto César"]},"2014-11-09":{"id":"390312","c":"Brasileirão Série A","v":"Arena de Pernambuco","g":[["8'","A","Márcio Araújo",""],["24'","A","Nixon",""],["88'","S","Danilo Barcelos",""],["90'+2'","S","Mike",""]],"xi":["Magrão","Durval","Ewerton Páscoa","René","Patric","Rodrigo Mancha","Wendel","Rithely","Joelinton","Ibson Barreto da Silva","Felipe Azevedo"],"f":"4-3-2-1","sb":["Danilo Barcelos","Régis","Mike"]},"2014-11-23":{"id":"390281","c":"Brasileirão Série A","v":"Arena de Pernambuco","g":[["11'","S","Mike",""],["32'","A","Ewerton Páscoa","contra"],["40'","S","Joelinton",""],["90'+2'","A","Fred",""]],"xi":["Magrão","Durval","Ewerton Páscoa","René","Patric","Rithely","Danilo Barcelos","Rodrigo Mancha","Joelinton","Diego Souza","Mike"],"f":"4-3-3","sb":["Wendel","Régis","Ananias"]},"2015-06-13":{"id":"417728","c":"Brasileirão Série A","v":"Ilha do Retiro","g":[["16'","S","Maikon Leite",""],["39'","S","Maikon Leite",""],["79'","A","Marcelinho Paraíba",""]],"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Rithely","Rodrigo Mancha","Diego Souza","Samuel Rosa","Neto Moura","Maikon Leite"],"f":"4-2-2-2","sb":["Ewerton Páscoa","Danilo Barcelos","André"]},"2015-06-20":{"id":"417720","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":17206,"g":[["20'","S","André",""],["42'","A","Duvier Riascos",""],["81'","S","Wendel",""]],"xi":["Danilo Fernandes","Durval","Ewerton Páscoa","René","Samuel Xavier","Diego Souza","Wendel","Rithely","André","Neto Moura","Maikon Leite"],"f":"4-2-3-1","sb":["Marlone","Régis","Samuel Rosa"]},"2015-07-12":{"id":"417669","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":32291,"g":[["22'","S","Matheus Ferraz",""],["44'","A","Leandro Pereira",""],["59'","A","Leandro Pereira",""],["90'","S","André",""]],"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Wendel","Neto Moura","Rodrigo Mancha","André","Diego Souza","Marlone"],"f":"4-3-3","sb":["Samuel Rosa","Danilo Barcelos","Régis"]},"2015-07-19":{"id":"417659","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":35835,"g":[["34'","S","Élber",""],["90'+3'","S","Ferrugem",""]],"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Diego Souza","Wendel","Rithely","André","Marlone","Élber"],"f":"4-2-3-1","sb":["Rodrigo Mancha","Régis","Ferrugem"]},"2015-08-02":{"id":"417634","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":24456,"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Diego Souza","Wendel","Rithely","André","Marlone","Régis"],"f":"4-2-3-1","sb":["Hernane","Samuel Rosa","Neto Moura"]},"2015-08-26":{"id":"431527","c":"Copa Sul-Americana","v":"Ilha do Retiro","g":[["52'","S","Rithely",""],["74'","A","Maximiliano Biancucchi",""],["79'","S","Hernane",""],["86'","S","Élber",""],["90'+5'","S","Hernane",""]],"xi":["Magrão","Durval","Matheus Ferraz","René","Ferrugem","Diego Souza","Rodrigo Mancha","Rithely","André","Marlone","Maikon Leite"],"f":"4-2-3-1","sb":["Hernane","Wendel","Élber"]},"2015-08-30":{"id":"417585","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":30466,"g":[["5'","A","Éverton",""]],"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Diego Souza","Wendel","Rithely","Hernane","Marlone","Maikon Leite"],"f":"4-2-3-1","sb":["André","Ferrugem","Élber"]},"2015-10-18":{"id":"417481","c":"Brasileirão Série A","v":"Ilha do Retiro","p":13725,"g":[["7'","S","Matheus Ferraz",""],["23'","S","Diego Souza",""],["27'","S","Élber",""],["54'","S","Maikon Leite",""],["84'","A","Thiago Ribeiro","pen"]],"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Diego Souza","Ronaldo","Wendel","Hernane","Marlone","Élber"],"f":"4-2-3-1","sb":["Matheus Galdezani","Ewerton Páscoa","Maikon Leite"]},"2015-11-29":{"id":"417422","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":16763,"g":[["24'","S","Matheus Ferraz",""],["90'+1'","S","André",""]],"xi":["Danilo Fernandes","Durval","Matheus Ferraz","René","Samuel Xavier","Diego Souza","Wendel","Rithely","André","Marlone","Élber"],"f":"4-2-3-1","sb":["Maikon Leite","Ronaldo","Neto Moura"]},"2016-07-30":{"id":"446161","c":"Brasileirão Série A","v":"Ilha do Retiro","g":[["17'","S","Diego Souza","pen"],["53'","S","Edmilson Dos Santos",""]],"xi":["Magrão","Ronaldo Alves","Matheus Ferraz","Rodney Wallace","Samuel Xavier","Diego Souza","Sérginho","Rithely","Edmilson Dos Santos","Rogério","Everton Felipe "],"f":"4-2-3-1","sb":["Mark González","Rodrigo Mancha","Paulo Ribeiro"]},"2016-10-16":{"id":"446030","c":"Brasileirão Série A","v":"Ilha do Retiro","p":12235,"g":[["6'","S","Diego Souza",""]],"xi":["Magrão","Ronaldo Alves","Matheus Ferraz","René","Samuel Xavier","Diego Souza","Paulo Ribeiro","Rithely","Rogério","Rodney Wallace","Everton Felipe "],"f":"4-2-3-1","sb":["Neto Moura","Apodi","Vinícius Araújo"]},"2017-04-02":{"id":"477654","c":"Copa do Nordeste","v":"Ilha do Retiro"},"2017-07-02":{"id":"476194","c":"Brasileirão Série A","v":"Ilha do Retiro","p":9543,"g":[["76'","S","Diego Souza","pen"]],"xi":["Magrão","Durval","Ronaldo Alves","Sander","Samuel Xavier","Diego Souza","Patrick","Rithely","André","Osvaldo","Everton Felipe "],"f":"4-2-3-1","sb":["Reinaldo Lenis","Rogério","Rodrigo"]},"2017-07-13":{"id":"476177","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":23489,"g":[["63'","S","André",""],["90'+2'","S","Diego Souza",""],["90'+5'","S","André",""]],"xi":["Magrão","Durval","Ronaldo Alves","Sander","Samuel Xavier","Everton Felipe ","Patrick","Rithely","André","Eugenio Mena","Osvaldo"],"f":"4-2-3-1","sb":["Diego Souza","Rogério","Agenor"]},"2017-07-23":{"id":"476151","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":37430,"g":[["35'","A","Bruno Henrique",""],["45'+3'","A","Keno",""]],"xi":["Agenor","Durval","Ronaldo Alves","Sander","Samuel Xavier","Diego Souza","Patrick","Rithely","André","Eugenio Mena","Everton Felipe "],"f":"4-2-3-1","sb":["Rogério","Thomás ","Thallyson"]},"2017-11-08":{"id":"475976","c":"Brasileirão Série A","v":"Ilha do Retiro","p":10946,"g":[["15'","A","Bruno Silva",""],["19'","A","Marcos Vinicius",""],["86'","S","André",""]],"xi":["Magrão","Durval","Oswaldo Henriquez","Sander","Samuel Xavier","Wesley","Patrick","Rithely","André","Rogério","Osvaldo"],"f":"4-2-3-1","sb":["Reinaldo Lenis","Marquinhos","Thomás "]},"2017-11-19":{"id":"475944","c":"Brasileirão Série A","v":"Ilha do Retiro","p":5550,"g":[["39'","S","Marquinhos",""]],"xi":["Magrão","Durval","Oswaldo Henriquez","Sander","Raul Prata","Diego Souza","Patrick","Anselmo","André","Eugenio Mena","Marquinhos"],"f":"4-2-3-1","sb":["Rithely","Rogério"]},"2018-05-20":{"id":"507233","c":"Brasileirão Série A","v":"Arena de Pernambuco","g":[["55'","A","Roger",""],["63'","S","Carlos Henrique",""]],"xi":["Magrão","Ernando","Ronaldo Alves","Sander","Cláudio Winck","Gabriel","Anselmo","Neto Moura","Rafael Marques","Rogério","Everton Felipe "],"f":"4-2-3-1","sb":["Carlos Henrique","Deivid","Michel Bastos"]},"2018-06-13":{"id":"507174","c":"Brasileirão Série A","v":"Ilha do Retiro","xi":["Mailson","Ernando","Ronaldo Alves","Sander","Raul Prata","Gabriel","Fellipe Bastos","Deivid","Rafael Marques","Marlone","Rogério"],"f":"4-2-3-1","sb":["Carlos Henrique","Michel Bastos","Everton Felipe "]},"2018-10-05":{"id":"507013","c":"Brasileirão Série A","v":"Ilha do Retiro","p":9979,"g":[["67'","A","Nico López",""],["79'","S","Adryelson",""],["88'","S","Mateus",""]],"xi":["Magrão","Adryelson","Ronaldo Alves","Sander","Raul Prata","Marlone","Marcão Silva","Jair","Michel Bastos","Mateus","Gabriel"],"f":"4-2-3-1","sb":["Rafael Marques","Fellipe Bastos","Matheus Peixoto"]},"2018-11-18":{"id":"506943","c":"Brasileirão Série A","v":"Ilha do Retiro","p":26005,"g":[["82'","A","Willian Arão",""]],"xi":["Mailson","Mailson","Adryelson","Ronaldo Alves","Ernando","Cláudio Winck","Michel Bastos","Jair","Marcão Silva","Hernane","Mateus","Gabriel"],"f":"4-2-3-1","sb":["Matheus Peixoto","Marlone","Fellipe Bastos"]},"2019-05-11":{"id":"537829","c":"Brasileirão Série B","v":"Ilha do Retiro","p":8166,"xi":["Mailson","Adryelson","Rafael Thyere","Raul Prata","Norberto","Sammir","Charles","João Igor","Hernane","Guilherme Augusto","Ezequiel"],"f":"4-2-3-1","sb":["Pedro Carmona","Juninho Piauiense","Yago"]},"2019-08-01":{"id":"537718","c":"Brasileirão Série B","v":"Arena de Pernambuco","p":14151,"g":[["11'","A","Robson",""],["60'","S","Hernane",""]],"xi":["Mailson","Kieran Gibbons","Rafael Thyere","Éder","Norberto","Guilherme Augusto","Charles","Ronaldo","Hernane","Yan","Ezequiel"],"f":"4-2-3-1","sb":["Juninho Piauiense","Yago","Sammir"]},"2019-08-17":{"id":"537695","c":"Brasileirão Série B","v":"Arena de Pernambuco","p":15370,"g":[["17'","S","Hernane",""],["65'","S","Leandro",""],["90'+5'","S","Guilherme Augusto",""]],"xi":["Mailson","Adryelson","Rafael Thyere","Sander","Raul Prata","Juninho Piauiense","Charles","Marcão Silva","Hernane","Guilherme Augusto","Hyuri"],"f":"4-2-3-1","sb":["João Igor","Yan","Leandro"]},"2021-10-17":{"id":"598344","c":"Brasileirão Série A","v":"Ilha do Retiro","p":5272,"xi":["Mailson","Sabino","Rafael Thyere","Sander","Ewerton","Gustavo","Marcão Silva","José Welison","Mikael","Luciano Juba","Everaldo"],"f":"4-2-3-1","sb":["Leandro Barcia","Paulinho","Santiago Tréllez"]},"2021-10-31":{"id":"598316","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":3685,"r":"Luiz Flavio de Oliveira","g":[["76'","S","Mikael","pen"],["86'","S","Mikael",""]],"xi":["Mailson","Sabino","Rafael Thyere","Marcão Silva","Sander","Ewerton","José Welison","Hernanes","Gustavo","Santiago Tréllez","Mikael"],"f":"4-1-4-1","sb":["Paulinho","Luciano Juba","Everton Felipe ","Chico"]},"2021-11-18":{"id":"598277","c":"Brasileirão Série A","v":"Arena de Pernambuco","p":8096,"g":[["66'","S","Paulinho",""]],"xi":["Mailson","Sabino","Rafael Thyere","Sander","Ewerton","Marcão Silva","Hernanes","José Welison","Mikael","Gustavo","Everton Felipe "],"f":"4-3-3","sb":["Santiago Tréllez","Ronaldo","Chico","Paulinho"]},"2022-05-06":{"id":"631480","c":"Brasileirão Série B","v":"Ilha do Retiro","p":10067,"r":"Edina Alves Batista","g":[["58'","S","Javier Parraguez",""],["75'","S","Luciano Juba",""]],"xi":["Mailson","Sabino","Rafael Thyere","Lucas Hernández","Ewerton","William Oliveira","Everton Felipe ","Bruno Matias","Kayke","Luciano Juba","Jaderson"],"f":"4-3-3","sb":["Giovanni Piccolomo","Javier Parraguez","Ronaldo","Ray Vanegas","Chico"]},"2022-07-09":{"id":"631367","c":"Brasileirão Série B","v":"Ilha do Retiro","p":16891,"r":"Douglas Marques das Flores","g":[["9'","S","Rafael Thyere",""],["65'","S","Sander",""]],"xi":["Mailson","Sabino","Rafael Thyere","Sander","Ewerton","Giovanni Piccolomo","Blas Caceres","Fabinho","Javier Parraguez","Luciano Juba","Thiago Lopes"],"f":"4-2-3-1","sb":["Alan","Ray Vanegas","Pedrinho"]},"2022-07-28":{"id":"631325","c":"Brasileirão Série B","v":"Ilha do Retiro","p":15011,"r":"Andre Luiz De Freitas Castro","g":[["5'","S","Denner Melz",""],["51'","S","Ronaldo","pen"],["90'+1'","A","Nicolas Careca",""]],"xi":["Carlos Miguel","Chico","Sabino","Ronaldo","Sander","Pedrinho","Denner Melz","Fabinho","Luciano Juba","Thiago Lopes","Kayke"],"f":"4-1-4-1","sb":["Everton Felipe ","William Oliveira","Ray Vanegas","Giovanni Piccolomo","Bruno Matias"]},"2022-08-02":{"id":"631313","c":"Brasileirão Série B","v":"Ilha do Retiro","p":17189,"r":"Savio Pereira Sampaio","g":[["39'","A","Lohan",""],["86'","S","Vágner Love",""]],"xi":["Carlos Miguel","Sabino","Fábio Augusto Schirmann","Lucas Hernández","Ewerton","Denner Melz","William Oliveira","Fabinho","Kayke","Luciano Juba","Thiago Lopes"],"f":"4-2-3-1","sb":["Gustavo Coutinho","Pedrinho","Everton Felipe ","Vágner Love","Blas Caceres"]},"2022-08-13":{"id":"631291","c":"Brasileirão Série B","v":"Arena de Pernambuco","p":30445,"r":"Jose Mendonca Da Silva Junior","g":[["25'","S","Sander",""],["29'","S","Giovanni Piccolomo",""],["45'+3'","S","Kayke",""],["90'+1'","S","Luciano Juba",""]],"xi":["Saulo","Sabino","Fábio Augusto Schirmann","Sander","Ewerton","Giovanni Piccolomo","Pedrinho","Luciano Juba","Fabinho","Kayke","Vágner Love"],"f":"4-4-2","sb":["Blas Caceres","Ray Vanegas","Wanderson","Chico","Gustavo Coutinho"]},"2022-08-23":{"id":"631272","c":"Brasileirão Série B","v":"Ilha do Retiro","p":15128,"r":"Felipe Fernandes De Lima","g":[["69'","S","Facundo Labandeira",""]],"xi":["Dênis","Sabino","Fábio Augusto Schirmann","Sander","Eduardo","Giovanni Piccolomo","Pedrinho","Luciano Juba","Denner Melz","Kayke","Vágner Love"],"f":"4-4-2","sb":["Gustavo Coutinho","Chico","Ronaldo","Wanderson","Facundo Labandeira"]},"2022-08-30":{"id":"631267","c":"Brasileirão Série B","v":"Ilha do Retiro","p":19188,"r":"Rafael Rodrigo Klein","g":[["87'","S","Gustavo Coutinho",""]],"xi":["Saulo","Sabino","Fábio Augusto Schirmann","Sander","Eduardo","Ronaldo","Giovanni Piccolomo","Fabinho","Kayke","Vágner Love","Luciano Juba"],"f":"4-3-3","sb":["Gustavo Coutinho","Facundo Labandeira","Wanderson","Lucas Hernández","Denner Melz"]},"2022-10-09":{"id":"631193","c":"Brasileirão Série B","v":"Ilha do Retiro","p":19600,"r":"Savio Pereira Sampaio","g":[["21'","S","Chico",""],["40'","S","Vágner Love",""],["56'","A","Bruno Rodrigues",""],["78'","S","Facundo Labandeira",""]],"xi":["Saulo","Chico","Rafael Thyere","Lucas Hernández","Eduardo","Ronaldo","Fabinho","Denner Melz","Luciano Juba","Vágner Love","Facundo Labandeira"],"f":"4-4-2","sb":["Fábio Augusto Schirmann","Giovanni Piccolomo","William Oliveira","Wanderson","Javier Parraguez"]},"2022-10-16":{"id":"631190","c":"Brasileirão Série B","v":"Ilha do Retiro","p":19598,"r":"Raphael Claus","g":[["65'","S","Facundo Labandeira",""],["90'+5'","A","Raniel","pen"]],"xi":["Saulo","Sabino","Rafael Thyere","Sander","Eduardo","Ronaldo","Fabinho","Luciano Juba","Facundo Labandeira","Vágner Love","Gustavo Coutinho"],"f":"4-4-2","sb":["Chico","Denner Melz","William Oliveira","Giovanni Piccolomo","Wanderson"]},"2023-01-21":{"id":"662219","c":"Copa do Nordeste","v":"Ilha do Retiro"},"2023-03-18":{"id":"662613","c":"Copa do Nordeste","v":"Arena de Pernambuco"},"2023-03-26":{"id":"667664","c":"Copa do Nordeste","v":"Ilha do Retiro"},"2023-03-29":{"id":"667767","c":"Copa do Nordeste","v":"Ilha do Retiro"},"2023-04-26":{"id":"668016","c":"Copa do Brasil","v":"Ilha do Retiro"},"2023-05-03":{"id":"668018","c":"Copa do Nordeste","v":"Ilha do Retiro"},"2023-07-28":{"id":"666397","c":"Brasileirão Série B","v":"Ilha do Retiro","p":17067,"r":"Daronco, Anderson","g":[["50'","S","Sabino",""],["63'","S","Ronaldo","pen"]],"xi":["Renan","Sabino","Rafael Thyere","Felipinho","Eduardo","Alan Ruíz","Fábio Matheus","Ronaldo","Vágner Love","Luciano Juba","Edinho"],"f":"4-2-3-1","sb":["Fabinho","Facundo Labandeira","Ewerton","Igor Cariús","Michel Barbosa De Lima"]},"2023-08-05":{"id":"666417","c":"Brasileirão Série B","v":"Ilha do Retiro","p":23173,"r":"Savio Pereira Sampaio","g":[["70'","S","Felipinho",""]],"xi":["Renan","Sabino","Rafael Thyere","Felipinho","Eduardo","Alan Ruíz","Fábio Matheus","Ronaldo","Vágner Love","Luciano Juba","Edinho"],"f":"4-2-3-1","sb":["Facundo Labandeira","Fabinho","Felipe","Ewerton","Victor Gabriel"]},"2023-08-26":{"id":"666444","c":"Brasileirão Série B","v":"Ilha do Retiro","p":19069,"r":"Felipe Fernandes De Lima","g":[["1'","A","Matheus Cadorini",""],["6'","A","Ewerton","contra"],["65'","S","Ronaldo",""]],"xi":["Renan","Sabino","Rafael Thyere","Luciano Juba","Ewerton","Fábio Matheus","Ronaldo","Alan Ruíz","Jorginho","Facundo Labandeira","Vágner Love"],"f":"4-4-2","sb":["Roberto Rosales","Michel Barbosa De Lima","Felipe","Edinho","João Peglow"]},"2023-09-09":{"id":"666467","c":"Brasileirão Série B","v":"Ilha do Retiro","p":24201,"r":"Flavio Rodrigues de Souza","g":[["17'","S","João Peglow",""],["31'","A","Éder","pen"],["34'","S","Jorginho",""],["66'","A","Hygor",""],["70'","S","Fabinho",""],["90'+7'","A","Éder","pen"]],"xi":["Dênis","Renzo","Chico","Felipinho","Eduardo","Fabinho","Facundo Labandeira","João Peglow","Felipe","Vágner Love","Jorginho"],"f":"4-4-2","sb":["Alan Ruíz","Edinho","Michel Barbosa De Lima"]},"2023-09-23":{"id":"666490","c":"Brasileirão Série B","v":"Ilha do Retiro","p":26345,"r":"Savio Pereira Sampaio","g":[["31'","S","Jorginho",""],["50'","S","Facundo Labandeira",""],["74'","S","Michel Barbosa De Lima",""],["86'","S","Fábio Matheus",""]],"xi":["Dênis","Sabino","Alisson Cassiano","Felipinho","Roberto Rosales","Ronaldo","Jorginho","Fabinho","Vágner Love","João Peglow","Facundo Labandeira"],"f":"4-3-3","sb":["Fábio Matheus","Michel Barbosa De Lima","Felipe","Alan Ruíz","Diego Souza"]},"2023-11-10":{"id":"666557","c":"Brasileirão Série B","v":"Ilha do Retiro","p":26345,"r":"Wagner Do Nascimento Magalhaes","xi":["Jordan","Chico","Rafael Thyere","Felipinho","Roberto Rosales","Fabinho","Felipe","Fábio Matheus","Diego Souza","Edinho","Jorginho"],"f":"4-3-3","sb":["Nathan Mendes Da Silva","Wanderson","Facundo Labandeira","Fabrício Daniel","Vágner Love"]},"2023-11-25":{"id":"666579","c":"Brasileirão Série B","v":"Ilha do Retiro","p":11520,"r":"Dyorgines Jose Padovani de Andrade","g":[["27'","S","Wanderson",""],["43'","S","Gustavo Henrique","contra"],["45'+4'","S","Fabrício Daniel",""],["48'","S","Fabinho",""],["67'","A","Ytalo","pen"]],"xi":["Jordan","Chico","Rafael Thyere","Felipinho","Ewerton","Jorginho","Felipe","Fabinho","Fabrício Daniel","Wanderson","Edinho"],"f":"4-3-3","sb":["Diego Souza","Nathan Mendes Da Silva","Gabriel Santos","Pedro","Juan Xavier"]},"2024-04-10":{"id":"701539","c":"Copa do Nordeste","v":"Arena de Pernambuco"},"2024-05-22":{"id":"702051","c":"Copa do Brasil","v":"Arena de Pernambuco","p":20035,"r":"Braulio Da Silva Machado","g":[["14'","S","Chrystian",""]],"xi":["Caíque","Luciano Castan","Rafael Thyere","Felipinho","Pedro Lima","Lucas Lima","Fabricio Domínguez","Felipe","Gustavo Coutinho","Romarinho","Chrystian"],"f":"4-2-3-1","sb":["Zé Roberto","Dalbert","Christian Ortíz","Alan Ruíz"]},"2024-05-26":{"id":"701759","c":"Copa do Nordeste","v":"Arena de Pernambuco"},"2024-10-07":{"id":"700196","c":"Brasileirão Série B","v":"Ilha do Retiro","p":26345,"r":"Wilton Pereira Sampaio","g":[["60'","S","Chrystian",""],["78'","A","Erick Pulga",""],["90'+4'","S","Wellington Silva",""]],"xi":["Caíque","Chico","Rafael Thyere","Dalbert","Igor Cariús","Fabricio Domínguez","Felipe","Chrystian","Lucas Lima","Christian Ortíz","Zé Roberto"],"f":"4-4-2","sb":["Lenny Lobato","Wellington Silva","Gustavo Coutinho","Leonel Di Plácido","Felipinho"]},"2024-11-24":{"id":"700280","c":"Brasileirão Série B","v":"Ilha do Retiro","p":24389,"r":"Bruno Arleu de Araujo","g":[["45'+5'","S","Lucas Lima","pen"],["63'","S","Fabinho",""],["76'","A","Wendel",""]],"xi":["Caíque","Chico","Rafael Thyere","Dalbert","Igor Cariús","Julián Fernández","Fabricio Domínguez","Christian Ortíz","Lucas Lima","Chrystian","Lenny Lobato"],"f":"4-4-2","sb":["Felipinho","Fabinho","Helibelton Palacios","Gustavo Coutinho","Wellington Silva"]},"2025-02-05":{"id":"730907","c":"Copa do Nordeste","v":"Ilha do Retiro"},"2025-04-06":{"id":"732603","c":"Brasileirão Série A","v":"Ilha do Retiro","p":26324,"r":"Bruno Arleu de Araujo","g":[["33'","A","José Manuel López","pen"],["38'","S","Chrystian",""],["90'+1'","A","Joaquín Piquerez","pen"]],"xi":["Caíque","Chico","João Silva","Igor Cariús","Hereda","Sérgio Oliveira","Du Queiroz","Christian Rivera","Chrystian","Lucas Lima","Pablo"],"f":"4-5-1","sb":["Lenny Lobato","Matheus Alexandre","Fabricio Domínguez","Arthur Sousa","Carlos Alberto"]},"2025-04-16":{"id":"732626","c":"Brasileirão Série A","v":"Ilha do Retiro","p":12621,"r":"Paulo Cezar Zanovelli Da Silva","g":[["13'","A","Juninho Capixaba",""]],"xi":["Caíque","Chico","João Silva","Hereda","Matheus Alexandre","Fabricio Domínguez","Du Queiroz","Christian Rivera","Lenny Lobato","Chrystian","Lucas Lima"],"f":"4-2-3-1","sb":["Gustavo Maia","Christian Ortíz","Zé Lucas","Rodrigo Atencio","Carlos Alberto"]},"2025-05-11":{"id":"732661","c":"Brasileirão Série A","v":"Ilha do Retiro","p":16003,"r":"Raphael Claus","g":[["8'","A","Igor Cariús","contra"],["18'","A","Kaio Jorge",""],["45'+1'","A","Matheus Pereira",""],["53'","A","Matheus Pereira",""]],"xi":["Caíque","Chico","João Silva","Christian Rivera","Igor Cariús","Matheus Alexandre","Sérgio Oliveira","Du Queiroz","Carlos Alberto","Chrystian","Pablo"],"f":"4-1-4-1","sb":["Dalbert","Romarinho","Hereda","Rodrigo Atencio","Zé Lucas"]},"2025-05-25":{"id":"732684","c":"Brasileirão Série A","v":"Ilha do Retiro","p":21921,"r":"Davi De Oliveira Lacerda","g":[["7'","S","Chrystian",""],["48'","A","Gustavo Prado",""]],"xi":["Caíque","Antônio Carlos","Chico","Lucas Cunha","Zé Lucas","Sérgio Oliveira","Igor Cariús","Hereda","Pablo","Chrystian","Lucas Lima"],"f":"3-4-2-1","sb":["Rodrigo Atencio","Romarinho","Christian Ortíz","Dalbert","Du Queiroz"]},"2025-07-20":{"id":"732738","c":"Brasileirão Série A","v":"Ilha do Retiro","p":11609,"r":"Flavio Rodrigues de Souza","g":[["90'+1'","A","Cuiabano",""]],"xi":["Gabriel","Ramon Menezes","Rafael Thyere","Igor Cariús","Matheus Alexandre","Lucas Lima","Christian Rivera","Zé Lucas","Juan Ramírez","Derik Lacerda","Chrystian"],"f":"4-2-3-1","sb":["Romarinho","Chico","Rodrigo Atencio","Kevyson","Matheuzinho"]},"2025-07-26":{"id":"732755","c":"Brasileirão Série A","v":"Ilha do Retiro","p":26018,"r":"Rafael Rodrigo Klein","g":[["4'","S","Derik Lacerda",""],["70'","S","Gustavo Caballero","contra"],["79'","A","Gabriel Bontempo",""],["88'","A","Joao Basso",""]],"xi":["Gabriel","Ramon Menezes","Rafael Thyere","Igor Cariús","Matheus Alexandre","Lucas Lima","Christian Rivera","Zé Lucas","Derik Lacerda","Matheuzinho","Chrystian"],"f":"4-2-3-1","sb":["Hyoran","Romarinho","Pedro Augusto","Rodrigo Atencio","Juan Ramírez"]},"2025-08-02":{"id":"732768","c":"Brasileirão Série A","v":"Ilha do Retiro","p":16080,"r":"Daronco, Anderson","xi":["Gabriel","Ramon Menezes","Rafael Thyere","Igor Cariús","Matheus Alexandre","Christian Rivera","Rodrigo Atencio","Zé Lucas","Derik Lacerda","Chrystian","Matheuzinho"],"f":"4-3-3","sb":["Juan Ramírez","Hyoran","Kevyson","Pedro Augusto","Léo Pereira"]},"2025-09-21":{"id":"732826","c":"Brasileirão Série A","v":"Ilha do Retiro","p":26504,"r":"Savio Pereira Sampaio","g":[["49'","S","Matheuzinho",""]],"xi":["Gabriel","Ramon Menezes","Rafael Thyere","Luan Cândido","Aderlan Silva","Hyoran","Christian Rivera","Zé Lucas","Derik Lacerda","Léo Pereira","Matheuzinho"],"f":"4-2-3-1","sb":["Rodrigo Atencio","Igor Cariús","Matheus Alexandre","Lucas Kal","Chrystian"]},"2026-05-03":{"id":"401860126","c":"Brasileirão Série B","v":"Ilha do Retiro","p":15655,"r":"Braulio Da Silva Machado","g":[["53'","S","Chrystian","pen"],["71'","S","Mádson",""]],"xi":["Thiago Couto","Marcelo","Marcelo Benevenuto","Felipinho","Mádson","Carlos De Peña","Zé Lucas","Biel","Pedro Perotti","Clayson","Chrystian"],"f":"4-2-3-1","sb":["Augusto Pucci","Yago Felipe","Max","Marlon","Iury"]},"2026-05-28":{"id":"401871836","c":"Copa do Nordeste","v":"Ilha do Retiro","r":"Denis Da Silva Ribeiro Serafim"},"2026-07-27":{"id":"401860257","c":"Brasileirão Série B","v":"Ilha do Retiro","r":"Lucas Canetto Bellote","g":[["53'","S","Pedro Perotti",""],["75'","A","Fábio",""]],"xi":["Thiago Couto","Habraão","Marcelo Benevenuto","Felipinho","Augusto Pucci","Pedro","José Gabriel","Clayson","Biel","Pedro Perotti","Chrystian"],"f":"4-4-1-1","sb":["Dudu Teodora","Yago Felipe","Diego Hernández"]},"2026-08-14":{"id":"401860274","c":"Brasileirão Série B","v":"Ilha do Retiro","r":"Flavio Rodrigues de Souza","g":[["11'","S","Diego Hernández",""],["30'","A","João Vitor",""],["43'","S","Diego Hernández",""]],"xi":["Thiago Couto","Kayky","Marcelo","Felipinho","Claudinho","Diego Hernández","Willian","José Gabriel","Pedro Perotti","Clayson","Chrystian"],"f":"4-2-3-1","sb":["Marlon","Marcelo Benevenuto","Biel","Dudu Teodora","Juan Alano"]},"2026-10-06":{"id":"401860380","c":"Brasileirão Série B","v":"Ilha do Retiro","g":[["17'","S","Neto",""],["46'","A","Pedrinho",""],["86'","S","Patrick de Paula",""]],"xi":["Thiago Couto","Marcelo","Marcelo Benevenuto","Rai","Claudinho","Juan Alano","Patrick de Paula","Willian","Neto","Carlos De Peña","Chrystian"],"f":"4-2-3-1","sb":["Maron","Pedro Perotti","Edson Pereira","Augusto Pucci","Kervin Andrade"]},"2026-10-16":{"id":"401860399","c":"Brasileirão Série B","v":"Ilha do Retiro","g":[["45'+3'","A","Tomás Cardona",""],["69'","A","Rodriguinho",""]],"xi":["Thiago Couto","Marcelo","Habraão","Rai","Claudinho","Diego Hernández","Chrystian","Biel","Pedro Perotti","Patrick de Paula","Willian"],"f":"4-2-3-1","sb":["Kervin Andrade","Edson Pereira","Carlos De Peña","Marlon","José Gabriel","Neto"]},"2026-10-23":{"id":"401860408","c":"Brasileirão Série B","v":"Ilha do Retiro","g":[["76'","S","Chrystian",""],["90'+2'","A","Fellipe Mateus",""],["90'+10'","S","Chrystian","pen"]],"xi":["Thiago Couto","Habraão","Marcelo Benevenuto","Rai","Claudinho","Diego Hernández","Willian","Patrick de Paula","Pedro Perotti","Clayson","Chrystian"],"f":"4-2-3-1","sb":["Augusto Pucci","Neto","José Gabriel","Edson Pereira","Fernando Sobral"]},"2016-07-04":{"id":"446207","c":"Brasileirão Série A","v":"Ilha do Retiro","p":24968,"g":[["11'","A","Erik",""],["59'","S","Gabriel Xavier",""],["66'","A","Gabriel Jesus",""],["72'","A","Cleiton Xavier","pen"]],"xi":["Agenor","Durval","Matheus Ferraz","Rodney Wallace","Samuel Xavier","Diego Souza","Rithely","Sérginho","Edmilson Dos Santos","Gabriel Xavier","Rogério"],"f":"4-2-3-1","sb":["Clayton ","Mark González","Rodrigo Mancha"]},"2017-06-18":{"id":"476233","c":"Brasileirão Série A","v":"Ilha do Retiro","p":6061,"g":[["17'","A","Uillian Correia",""],["38'","A","Kanu",""],["45'+1'","S","Diego Souza",""],["79'","A","André Lima",""]],"xi":["Magrão","Durval","Ronaldo Alves","Sander","Samuel Xavier","Fabricio Silva Costa","Patrick","Rithely","André","Diego Souza","Osvaldo"],"f":"4-3-3","sb":["Marquinhos","Thomás ","Leandro Pereira"]},"2025-08-16":{"id":"732788","c":"Brasileirão Série A","v":"Ilha do Retiro","p":26104,"r":"Lucas Paulo Torezin","g":[["5'","S","Lucas Lima",""],["50'","S","Derik Lacerda",""],["66'","A","Lucas Moura",""],["90'+1'","A","Maik",""]],"xi":["Gabriel","Ramon Menezes","Rafael Thyere","Igor Cariús","Matheus Alexandre","Lucas Lima","Christian Rivera","Zé Lucas","Derik Lacerda","Léo Pereira","Matheuzinho"],"f":"4-2-3-1","sb":["Chrystian","João Silva","Pablo","Kevyson","Pedro Augusto"]},"2026-04-11":{"id":"401860092","c":"Brasileirão Série B","v":"Ilha do Retiro","p":10715,"r":"Lucas Paulo Torezin","g":[["19'","A","Luiz Henrique","pen"],["45'+9'","S","Chrystian","pen"],["89'","S","Carlos De Peña",""],["90'+6'","A","João Vitor Oliveira",""]],"xi":["Thiago Couto","Ze Marcos","Marcelo","Felipinho","Yago Felipe","José Gabriel","Biel","Zé Lucas","Pedro Perotti","Clayson","Chrystian"],"f":"4-3-3","sb":["Carlos De Peña","Habraão","Marlon","Gustavo Maia","Iury"]}};
+// Jogos do Sport em 2025 e 2026 na ESPN: [data, mandante, gols, gols, visitante, competição].
+const SCHED = [["2025-01-22","Ferroviário","1","2","Sport","Copa do Nordeste"],["2025-02-04","Sport","0","2","Fortaleza","Copa do Nordeste"],["2025-02-11","Sousa EC","1","2","Sport","Copa do Nordeste"],["2025-02-19","Sport","5","0","Moto Club","Copa do Nordeste"],["2025-02-25","CEOV Operário","0","0","Sport","Copa do Brasil"],["2025-03-05","Sport","2","1","CRB","Copa do Nordeste"],["2025-03-19","Vitória","1","0","Sport","Copa do Nordeste"],["2025-03-26","Sport","0","1","Altos","Copa do Nordeste"],["2025-03-29","São Paulo","0","0","Sport","Brasileirão Série A"],["2025-04-06","Sport","1","2","Palmeiras","Brasileirão Série A"],["2025-04-12","Vasco da Gama","3","1","Sport","Brasileirão Série A"],["2025-04-16","Sport","0","1","Red Bull Bragantino","Brasileirão Série A"],["2025-04-19","Corinthians","2","1","Sport","Brasileirão Série A"],["2025-04-26","Sport","0","0","Fortaleza","Brasileirão Série A"],["2025-05-03","Fluminense","2","1","Sport","Brasileirão Série A"],["2025-05-11","Sport","0","4","Cruzeiro","Brasileirão Série A"],["2025-05-17","Ceará","2","0","Sport","Brasileirão Série A"],["2025-05-25","Sport","1","1","Internacional","Brasileirão Série A"],["2025-06-01","Mirassol","1","0","Sport","Brasileirão Série A"],["2025-07-09","Sport","0","0","Ceará","Copa do Nordeste"],["2025-07-14","Juventude","2","0","Sport","Brasileirão Série A"],["2025-07-20","Sport","0","1","Botafogo","Brasileirão Série A"],["2025-07-23","Vitória","2","2","Sport","Brasileirão Série A"],["2025-07-26","Sport","2","2","Santos","Brasileirão Série A"],["2025-08-02","Sport","0","0","Bahia","Brasileirão Série A"],["2025-08-10","Grêmio","0","1","Sport","Brasileirão Série A"],["2025-08-16","Sport","2","2","São Paulo","Brasileirão Série A"],["2025-08-25","Palmeiras","3","0","Sport","Brasileirão Série A"],["2025-08-31","Sport","2","3","Vasco da Gama","Brasileirão Série A"],["2025-09-14","Red Bull Bragantino","1","1","Sport","Brasileirão Série A"],["2025-09-21","Sport","1","0","Corinthians","Brasileirão Série A"],["2025-09-27","Fortaleza","1","0","Sport","Brasileirão Série A"],["2025-10-01","Sport","2","2","Fluminense","Brasileirão Série A"],["2025-10-05","Cruzeiro","1","1","Sport","Brasileirão Série A"],["2025-10-08","Atlético-MG","3","1","Sport","Brasileirão Série A"],["2025-10-15","Sport","1","1","Ceará","Brasileirão Série A"],["2025-10-19","Internacional","2","0","Sport","Brasileirão Série A"],["2025-10-25","Sport","1","2","Mirassol","Brasileirão Série A"],["2025-11-01","Flamengo","3","0","Sport","Brasileirão Série A"],["2025-11-05","Sport","0","2","Juventude","Brasileirão Série A"],["2025-11-08","Sport","2","4","Atlético-MG","Brasileirão Série A"],["2025-11-15","Sport","1","5","Flamengo","Brasileirão Série A"],["2025-11-18","Botafogo","3","2","Sport","Brasileirão Série A"],["2025-11-23","Sport","1","3","Vitória","Brasileirão Série A"],["2025-11-28","Santos","3","0","Sport","Brasileirão Série A"],["2025-12-03","Bahia","2","0","Sport","Brasileirão Série A"],["2025-12-07","Sport","0","4","Grêmio","Brasileirão Série A"],["2026-03-05","Ferroviaria","0","0","Sport","Copa do Brasil"],["2026-03-12","Sport","1","1","Anápolis","Copa do Brasil"],["2026-03-17","Sport","1","3","Athletic","Copa do Brasil"],["2026-03-21","Cuiabá","0","0","Sport","Brasileirão Série B"],["2026-03-24","Sport","2","1","Jacuipense","Copa do Nordeste"],["2026-03-29","ABC","0","1","Sport","Copa do Nordeste"],["2026-04-01","Sport","1","1","Vila Nova","Brasileirão Série B"],["2026-04-04","Londrina","1","2","Sport","Brasileirão Série B"],["2026-04-08","Sport","3","0","Retró","Copa do Nordeste"],["2026-04-11","Sport","2","2","Avaí","Brasileirão Série B"],["2026-04-15","Sport","5","0","Maranhao","Copa do Nordeste"],["2026-04-18","América Mineiro","0","0","Sport","Brasileirão Série B"],["2026-04-25","Sport","1","0","Novorizontino","Brasileirão Série B"],["2026-04-29","Fortaleza","2","0","Sport","Copa do Nordeste"],["2026-05-03","Sport","2","0","Ceará","Brasileirão Série B"],["2026-05-06","Sport","1","0","ASA","Copa do Nordeste"],["2026-05-09","Ponte Preta","1","3","Sport","Brasileirão Série B"],["2026-05-17","Sport","1","2","CRB","Brasileirão Série B"],["2026-05-20","Fortaleza","1","2","Sport","Copa do Nordeste"],["2026-05-23","Juventude","0","1","Sport","Brasileirão Série B"],["2026-05-27","Sport","0","2","Fortaleza","Copa do Nordeste"],["2026-05-30","Sport","2","0","Náutico","Brasileirão Série B"],["2026-06-10","Sport","1","1","Athletic","Brasileirão Série B"],["2026-06-14","São Bernardo","0","0","Sport","Brasileirão Série B"],["2026-06-18","Sport","1","1","Atlético Goianiense","Brasileirão Série B"],["2026-06-28","Fortaleza","2","1","Sport","Brasileirão Série B"],["2026-07-04","Criciúma","1","0","Sport","Brasileirão Série B"],["2026-07-10","Sport","3","3","Botafogo-SP","Brasileirão Série B"],["2026-07-18","Sport","2","2","Operário PR","Brasileirão Série B"],["2026-07-22","Goiás","1","1","Sport","Brasileirão Série B"],["2026-07-27","Sport","1","1","Cuiabá","Brasileirão Série B"],["2026-08-08","Vila Nova","0","1","Sport","Brasileirão Série B"],["2026-08-14","Sport","2","1","Londrina","Brasileirão Série B"],["2026-08-19","Avaí","2","1","Sport","Brasileirão Série B"],["2026-08-24","Sport","3","0","América Mineiro","Brasileirão Série B"],["2026-08-28","Novorizontino","2","1","Sport","Brasileirão Série B"],["2026-09-05","Ceará","2","1","Sport","Brasileirão Série B"],["2026-09-10","Sport","2","0","Ponte Preta","Brasileirão Série B"],["2026-09-15","CRB","2","1","Sport","Brasileirão Série B"],["2026-09-19","Sport","2","1","Juventude","Brasileirão Série B"],["2026-09-26","Náutico","3","1","Sport","Brasileirão Série B"],["2026-10-01","Athletic","1","2","Sport","Brasileirão Série B"],["2026-10-06","Sport","2","1","São Bernardo","Brasileirão Série B"],["2026-10-11","Atlético Goianiense","1","1","Sport","Brasileirão Série B"],["2026-10-16","Sport","0","2","Fortaleza","Brasileirão Série B"],["2026-10-23","Sport","2","1","Criciúma","Brasileirão Série B"]];
+// Sem dados na API: estaduais inferidos pela data, a confirmar.
+const PE = ['2017-04-16','2019-02-28','2023-03-11','2023-04-22','2025-03-09','2025-04-02','2026-01-31','2026-02-21','2026-03-01'];
+// Sport mandante em todas as competições que a ESPN cobre, 2009–2026.
+const SPORT_CASA = {V:207, E:107, D:98};
 
 // Observações da sua lista, ligadas pela data do jogo.
 const EXTRA = {
@@ -368,7 +398,6 @@ const EXTRA = {
   '2023-05-03': {tags:['Final'], comp:'Copa do Nordeste', note:'Final da Copa do Nordeste.'},
   '2024-11-24': {tags:['Acesso'], note:'Jogo do acesso.'},
   '2025-04-02': {tags:['Título'], comp:'Campeonato Pernambucano', note:'Tricampeão pernambucano.'},
-  '2025-05-16': {warn:'Na sua lista este jogo aparece entre 02/08 e 21/09/2025, mas com data 16/05/2025. Confirme a data.'},
 };
 const CLASSICOS = {'Náutico':'Clássico dos Clássicos', 'Santa Cruz':'Clássico das Multidões'};
 const COMPS = ['Campeonato Pernambucano','Copa do Nordeste','Brasileirão Série A','Brasileirão Série B','Copa do Brasil','Copa Sul-Americana','Copa do Brasil Sub-17','Amistoso','Outra'];
@@ -379,11 +408,15 @@ const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','
 
 let games = RAW.trim().split('\n').map((line, i) => {
   const [, d, s, a, o, star] = line.match(/^(\S+) (\d+)x(\d+) (.+?)(\*)?$/);
-  const x = EXTRA[d] || {};
+  const x = EXTRA[d] || {}, api = API[d];
   const tags = [...(x.tags || [])];
   if (CLASSICOS[o]) tags.push(CLASSICOS[o]);
-  return {id:i+1, d, s:+s, a:+a, o, star:!!star, tags, comp:x.comp||'', note:x.note||'', publico:x.publico||null,
-          estadio:'', setor:'', com:'', warn:x.warn||'', photos:[]};
+  const pe = PE.includes(d);
+  return {id:i+1, d, s:+s, a:+a, o, star:!!star, tags, note:x.note||'',
+          comp:x.comp || api?.c || (pe ? 'Campeonato Pernambucano' : ''), compGuess:!x.comp && !api && pe,
+          publico:x.publico || api?.p || null, estadio:api?.v || '', arbitro:api?.r || '',
+          gols:api?.g || [], xi:api?.xi || [], form:api?.f || '', entraram:api?.sb || [], espn:api?.id || '',
+          setor:'', com:'', warn:x.warn||'', photos:[]};
 });
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -394,7 +427,7 @@ const fmtLong = d => { const x = dt(d); return `${WD_FULL[x.getDay()]}, ${x.getD
 const pct = n => (n * 100).toFixed(1).replace('.', ',') + '%';
 const sorted = () => [...games].sort((x, y) => x.d.localeCompare(y.d) || x.id - y.id);
 const pill = r => `<span class="res ${r}" title="${{V:'Vitória',E:'Empate',D:'Derrota'}[r]}">${r}</span>`;
-const tagHtml = t => `<span class="tag ${/Título|Acesso|Final/.test(t) ? 't' : /Clássico/.test(t) ? 'c' : ''}">${esc(t)}</span>`;
+const tagHtml = t => `<span class="tag ${/Título|Acesso|Final|Top 5/.test(t) ? 't' : /Clássico/.test(t) ? 'c' : ''}">${esc(t)}</span>`;
 
 function record(list){
   const r = {J:list.length, V:0, E:0, D:0, GP:0, GC:0};
@@ -441,7 +474,18 @@ function viewResumo(){
   const sc = {}; L.forEach(g => { const k = `${g.s}x${g.a}`; sc[k] = (sc[k] || 0) + 1; });
   const topSc = Object.entries(sc).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
-  const moments = L.filter(g => g.tags.some(t => /Título|Acesso|Final|Despedida/.test(t)) || g.publico);
+  const withApi = L.filter(g => g.espn), ra = record(withApi);
+  const casaApr = (3*SPORT_CASA.V + SPORT_CASA.E) / (3*(SPORT_CASA.V + SPORT_CASA.E + SPORT_CASA.D));
+  const venues = ['Ilha do Retiro', 'Arena de Pernambuco'].map(v => [v, record(L.filter(g => g.estadio === v))]);
+  const bigCrowd = L.filter(g => g.publico).sort((a, b) => b.publico - a.publico)[0];
+  const scorers = {}, apps = {}, mins = Array(6).fill(0);
+  L.forEach(g => {
+    g.gols.forEach(([m, t, p, k]) => { if (t !== 'S') return; if (k !== 'contra') scorers[p] = (scorers[p] || 0) + 1;
+      const n = parseInt(m); if (n) mins[Math.min(Math.floor((n - 1) / 15), 5)]++; });
+    [...g.xi, ...g.entraram].forEach(p => apps[p] = (apps[p] || 0) + 1);
+  });
+  const top = o => Object.entries(o).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 8);
+  const moments = L.filter(g => g.tags.some(t => /Título|Acesso|Final|Despedida/.test(t)));
 
   return `<section class="view">
     <div class="board">
@@ -498,6 +542,20 @@ function viewResumo(){
         <div class="sec-h"><h2>Placares mais comuns</h2></div>
         <div class="scores">${topSc.map(([k, n]) => `<div class="sc"><b>${k}</b><span>${n}×</span></div>`).join('')}</div>
       </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><h2>Em campo</h2><p>Dados da ESPN para ${withApi.length} dos ${r.J} jogos.</p></div>
+      <div class="recs">
+        <div class="rec"><span class="kick">Pé-quente</span><div class="v n">${pct(ra.apr)}</div><p>Seu aproveitamento nesses ${ra.J} jogos. O Sport como mandante, nas mesmas competições de 2009 a 2026, fez ${pct(casaApr)}: <b>${ra.apr > casaApr ? '+' : ''}${((ra.apr - casaApr) * 100).toFixed(1).replace('.', ',')} pontos</b>.</p></div>
+        ${venues.map(([v, x]) => `<div class="rec"><span class="kick">${esc(v)}</span><div class="v n">${pct(x.apr)}</div><p>${x.J} jogos: ${x.V}V ${x.E}E ${x.D}D.</p></div>`).join('')}
+        <a class="rec" href="#jogo-${bigCrowd.id}"><span class="kick">Maior público</span><div class="v n">${bigCrowd.publico.toLocaleString('pt-BR')}</div><p>${gl(bigCrowd)}</p></a>
+      </div>
+      <div class="two">
+        <div class="card sec"><h3>Artilheiros que você viu</h3><div class="hbars wide">${top(scorers).map(([n, k]) => `<div class="hb"><span>${esc(n)}</span><div class="t"><i style="width:${k / top(scorers)[0][1] * 100}%"></i></div><b>${k}</b></div>`).join('')}</div></div>
+        <div class="card sec"><h3>Jogadores que você mais viu</h3><div class="hbars wide">${top(apps).map(([n, k]) => `<div class="hb"><span>${esc(n)}</span><div class="t"><i style="width:${k / top(apps)[0][1] * 100}%"></i></div><b>${k}</b></div>`).join('')}</div></div>
+      </div>
+      <div class="card sec"><h3>Quando saem os gols do Sport</h3><div class="hbars wide">${mins.map((k, j) => `<div class="hb"><span>${['1–15', '16–30', '31–45+', '46–60', '61–75', '76–90+'][j]}</span><div class="t"><i style="width:${k / Math.max(...mins) * 100}%"></i></div><b>${k}</b></div>`).join('')}</div></div>
     </div>
 
     <div class="sec">
@@ -570,7 +628,7 @@ function viewJogos(){
       <input type="search" id="fq" placeholder="Buscar adversário, nota ou tag" value="${esc(F.q)}" aria-label="Buscar">
       <div class="seg" role="group" aria-label="Resultado">${[['', 'Todos'], ['V', 'V'], ['E', 'E'], ['D', 'D']].map(([k, l]) => `<button type="button" data-r="${k}" aria-pressed="${F.r === k}">${l}</button>`).join('')}</div>
       <select id="fy" aria-label="Ano"><option value="">Todos os anos</option>${years.map(y => `<option ${F.y === y ? 'selected' : ''}>${y}</option>`).join('')}</select>
-      <label class="chk"><input type="checkbox" id="fs" ${F.star ? 'checked' : ''}> marcados com *</label>
+      <label class="chk"><input type="checkbox" id="fs" ${F.star ? 'checked' : ''}> candidatos ao top 5</label>
     </div>
     <div id="list" class="sec"></div>
   </section>`;
@@ -589,7 +647,7 @@ function renderList(){
 }
 function rowHtml(g){
   const x = dt(g.d), r = res(g);
-  const tags = [...g.tags, ...(g.comp && !g.tags.length ? [g.comp] : []), ...(g.star ? ['*'] : []), ...(g.photos.length ? [`${g.photos.length} foto${g.photos.length > 1 ? 's' : ''}`] : [])];
+  const tags = [...g.tags, ...(g.comp && !g.tags.length ? [g.comp] : []), ...(g.star ? ['Top 5?'] : []), ...(g.photos.length ? [`${g.photos.length} foto${g.photos.length > 1 ? 's' : ''}`] : [])];
   return `<a class="g" href="#jogo-${g.id}">
     <div class="dt"><b class="n">${String(x.getDate()).padStart(2, '0')}</b><span>${MON[x.getMonth()]} · ${WD[x.getDay()]}</span></div>
     <div class="who"><strong>${esc(g.o)}</strong>${tags.length ? `<div class="tags">${tags.map(tagHtml).join('')}</div>` : ''}</div>
@@ -613,17 +671,18 @@ function viewJogo(id){
     <article class="ticket">
       <div class="main">
         <div class="stripes"></div>
-        <div class="hd"><span class="kick">Jogo nº ${i + 1} de ${L.length}</span><span class="kick">${esc(g.comp || 'Competição a preencher')}</span></div>
+        <div class="hd"><span class="kick">Jogo nº ${i + 1} de ${L.length}</span><span class="kick">${esc(g.comp || 'Competição a preencher')}${g.compGuess ? ' (a confirmar)' : ''}</span></div>
         <div class="match">
           <div class="team">Sport</div>
           <div class="score n">${g.s}<i>x</i>${g.a}</div>
           <div class="team away">${esc(g.o)}</div>
         </div>
         <div class="when">${fmtLong(g.d)} · ${{V:'vitória', E:'empate', D:'derrota'}[r]}</div>
-        ${g.tags.length || g.star ? `<div class="tags">${g.tags.map(tagHtml).join('')}${g.star ? tagHtml('marcado com * na sua lista') : ''}</div>` : ''}
+        ${g.tags.length || g.star ? `<div class="tags">${g.tags.map(tagHtml).join('')}${g.star ? tagHtml('Candidato ao top 5') : ''}</div>` : ''}
       </div>
       <aside class="stub">
-        ${fld('Estádio', g.estadio)}${fld('Setor', g.setor)}${fld('Público', g.publico ? g.publico.toLocaleString('pt-BR') : '')}${fld('Com quem', g.com)}
+        ${fld('Estádio', g.estadio)}${fld('Público', g.publico ? g.publico.toLocaleString('pt-BR') : '')}${fld('Árbitro', g.arbitro)}${fld('Setor', g.setor)}${fld('Com quem', g.com)}
+        <span class="src">${g.espn ? 'Estádio, público e árbitro: ESPN' : 'Jogo sem dados na API'}</span>
       </aside>
     </article>
 
@@ -642,6 +701,19 @@ function viewJogo(id){
     </div>
 
     ${g.note ? `<div class="sec"><div class="sec-h"><h2>Anotação</h2></div><p class="note">${esc(g.note)}</p></div>` : ''}
+
+    <div class="two">
+      <div class="sec card">
+        <div class="sec-h"><h2>Gols</h2></div>
+        ${g.gols.length ? `<ol class="goals">${g.gols.map(([m, t, p, k]) => `<li class="${t === 'S' ? 'us' : ''}"><span class="mono">${esc(m)}</span><b>${esc(p)}</b><span>${t === 'S' ? 'Sport' : esc(g.o)}${k === 'pen' ? ' · pênalti' : k === 'contra' ? ' · contra' : ''}</span></li>`).join('')}</ol>`
+          : `<p class="muted">${g.s + g.a === 0 ? 'Jogo sem gols.' : g.espn ? 'A API não tem os autores dos gols deste jogo.' : 'Sem dados na API. Dá para preencher à mão.'}</p>`}
+      </div>
+      <div class="sec card">
+        <div class="sec-h"><h2>Escalação do Sport</h2>${g.form ? `<span class="mono">${esc(g.form)}</span>` : ''}</div>
+        ${g.xi.length ? `<ol class="xi">${g.xi.map(n => `<li>${esc(n)}</li>`).join('')}</ol>${g.entraram.length ? `<p class="muted">Entraram: ${g.entraram.map(esc).join(', ')}</p>` : ''}`
+          : `<p class="muted">${g.espn ? 'A API não tem a escalação deste jogo.' : 'Sem dados na API. Dá para preencher à mão.'}</p>`}
+      </div>
+    </div>
 
     <div class="sec">
       <div class="sec-h"><h2>Fotos</h2><p>${g.photos.length ? `${g.photos.length} foto${g.photos.length > 1 ? 's' : ''}` : 'Nenhuma foto ainda.'}</p></div>
@@ -721,17 +793,45 @@ function viewRegistrar(){
 }
 let draftPhotos = [];
 
+/* ---------- montar diário (qualquer torcedor) ---------- */
+const P = {de:'2025-01-01', ate:'2026-10-31'};
+function viewMontar(){
+  return `<section class="view"><div class="sec-h"><h2>Montar diário</h2><p>Para qualquer torcedor: escolha o time e o período, e marque os jogos em que você foi.</p></div>
+    <div class="steps">
+      <div class="step"><h3>1 · Time</h3><div class="grid"><label class="in">Seu time<select id="m-t"><option>Sport</option><option disabled>Outros times: na versão real</option></select></label></div></div>
+      <div class="step"><h3>2 · Período</h3><div class="grid">
+        <label class="in">De<input type="date" id="m-de" value="${P.de}" min="2025-01-01" max="2026-10-31"></label>
+        <label class="in">Até<input type="date" id="m-ate" value="${P.ate}" min="2025-01-01" max="2026-10-31"></label></div>
+        <small class="proto">No protótipo só 2025 e 2026 estão carregados. Na versão real a lista vem da API para qualquer período.</small></div>
+      <div class="step"><h3>3 · Jogos em que você foi</h3><div class="pick" id="pick"></div></div>
+      <div class="sticky-act"><span id="m-n"></span><button class="btn" type="button" id="m-go">Adicionar ao diário</button></div>
+    </div></section>`;
+}
+const inDiary = r => games.some(g => g.d === r[0]);
+function renderPick(){
+  const rows = SCHED.filter(r => r[0] >= P.de && r[0] <= P.ate).reverse();
+  document.getElementById('pick').innerHTML = rows.length ? rows.map((r, k) => { const home = r[1] === 'Sport', has = inDiary(r);
+    return `<label><input type="checkbox" data-k="${SCHED.indexOf(r)}" ${has ? 'checked disabled' : ''}>
+      <span class="mono">${fmt(r[0])}</span>
+      <span>${home ? `<b>Sport</b> ${r[2]}x${r[3]} ${esc(r[4])}` : `${esc(r[1])} ${r[2]}x${r[3]} <b>Sport</b>`}<span class="c">${esc(r[5])}${home ? '' : ' · fora de casa'}</span></span>
+      <span class="in-d">${has ? 'já no diário' : ''}</span></label>`; }).join('') : `<div class="empty">Nenhum jogo do Sport nesse período.</div>`;
+  countPick();
+}
+function countPick(){ const n = document.querySelectorAll('#pick input:checked:not(:disabled)').length;
+  document.getElementById('m-n').textContent = n ? `${n} jogo${n > 1 ? 's' : ''} para adicionar` : 'Marque os jogos em que você foi'; }
+
 /* ================= router ================= */
 function toast(msg){ const t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3200); }
 function route(){
   const h = location.hash.slice(1) || 'resumo';
   const m = h.match(/^jogo-(\d+)$/);
-  const v = m ? 'jogos' : ['resumo', 'jogos', 'adversarios', 'registrar'].includes(h) ? h : 'resumo';
+  const v = m ? 'jogos' : ['resumo', 'jogos', 'adversarios', 'montar', 'registrar'].includes(h) ? h : 'resumo';
   document.querySelectorAll('.tabs a').forEach(a => a.dataset.v === v ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   if (m) app.innerHTML = viewJogo(+m[1]);
   else if (v === 'resumo'){ app.innerHTML = viewResumo(); drawChart(); }
   else if (v === 'jogos'){ app.innerHTML = viewJogos(); renderList(); }
   else if (v === 'adversarios'){ app.innerHTML = viewAdversarios(); renderOpp(); }
+  else if (v === 'montar'){ app.innerHTML = viewMontar(); renderPick(); }
   else { draftPhotos = []; app.innerHTML = viewRegistrar(); }
   window.scrollTo(0, 0);
 }
@@ -743,6 +843,8 @@ app.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'fy'){ F.y = t.value; renderList(); }
   if (t.id === 'fs'){ F.star = t.checked; renderList(); }
+  if (t.id === 'm-de' || t.id === 'm-ate'){ P[t.id.slice(2)] = t.value; renderPick(); }
+  if (t.closest && t.closest('#pick')) countPick();
   if (t.id === 'up'){ const g = games.find(x => x.id === +t.dataset.id);
     g.photos.push(...[...t.files].map(f => URL.createObjectURL(f))); route(); toast(`${t.files.length} foto(s) adicionada(s) neste protótipo.`); }
   if (t.id === 'f-ph'){ const urls = [...t.files].map(f => URL.createObjectURL(f)); draftPhotos.push(...urls);
@@ -750,6 +852,15 @@ app.addEventListener('change', e => {
 });
 app.addEventListener('click', e => {
   const b = e.target.closest('button[data-r]'); if (b){ F.r = b.dataset.r; app.querySelectorAll('[data-r]').forEach(x => x.setAttribute('aria-pressed', x === b)); renderList(); }
+  if (e.target.id === 'm-go'){
+    const sel = [...document.querySelectorAll('#pick input:checked:not(:disabled)')].map(x => SCHED[+x.dataset.k]);
+    if (!sel.length){ toast('Marque pelo menos um jogo.'); return; }
+    let id = Math.max(...games.map(g => g.id));
+    sel.forEach(r => { const home = r[1] === 'Sport';
+      games.push({id:++id, d:r[0], s:+(home ? r[2] : r[3]), a:+(home ? r[3] : r[2]), o:home ? r[4] : r[1], star:false, tags:CLASSICOS[home ? r[4] : r[1]] ? [CLASSICOS[home ? r[4] : r[1]]] : [],
+        note:'', comp:r[5], compGuess:false, publico:null, estadio:home ? '' : 'Fora de casa', arbitro:'', gols:[], xi:[], form:'', entraram:[], espn:'', setor:'', com:'', warn:'', photos:[]}); });
+    renderPick(); toast(`${sel.length} jogo${sel.length > 1 ? 's' : ''} adicionado${sel.length > 1 ? 's' : ''} ao diário (só nesta aba).`); return;
+  }
   const k = e.target.closest('button[data-k]'); if (k){ oppSort = {k:k.dataset.k, dir:oppSort.k === k.dataset.k ? -oppSort.dir : (k.dataset.k === 'o' ? 1 : -1)}; renderOpp(); }
 });
 app.addEventListener('submit', e => {
