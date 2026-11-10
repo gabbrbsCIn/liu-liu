@@ -442,3 +442,26 @@ a.row:hover{background:var(--raise)}
 .inst-link:hover{text-decoration:underline; text-underline-offset:3px}
 .fm-btn svg{transform:rotate(90deg); color:var(--fg-3)}
 .fm-btn[aria-expanded="true"] svg{transform:rotate(-90deg)}
+
+/* Budgets */
+.chg.warn{background:color-mix(in srgb, var(--warn) 18%, transparent); color:var(--warn)}
+.meter{position:relative; display:flex; gap:2px; height:8px; border-radius:4px; background:var(--raise-2); margin:8px 0 0}
+.meter i{display:block; height:100%; border-radius:4px; min-width:2px}
+.meter i.over{background:var(--neg)}
+.meter .pace{position:absolute; top:-3px; bottom:-3px; width:2px; margin-left:-1px; border-radius:1px; background:var(--fg); box-shadow:0 0 0 2px var(--panel)}
+.bgt{border-top:1px solid var(--line); padding:14px 20px}
+.bgt:first-of-type{border-top:0}
+.bgt-h{display:flex; gap:12px; align-items:flex-start}
+.bgt-h .badge{margin-top:1px}
+.bgt-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.bgt-top .t1{font-weight:600; font-size:15px}
+.bgt-val{margin-left:auto; display:inline-flex; align-items:baseline; gap:6px; font-size:13.5px; white-space:nowrap}
+.bgt-amt{color:var(--fg-2); font-size:13px; border-bottom:1px dashed var(--line-2)}
+.bgt-amt:hover{color:var(--fg); border-color:var(--fg-3)}
+.bgt-foot{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:7px; font-size:12.5px; color:var(--fg-2)}
+.bgt-form{margin:8px 0 0; flex-basis:100%; justify-content:flex-end}
+.bgt-form .field{width:120px}
+.bgt-subs{margin:10px 0 2px 56px; border-left:1px solid var(--line-2); padding-left:14px; display:flex; flex-direction:column; gap:12px}
+.bgt-sub .bgt-top{font-size:13.5px}
+.bgt-sub .bgt-top .sub-link{color:var(--fg)}
+@container app (max-width: 640px){ .bgt{padding:13px 14px} .bgt-subs{margin-left:8px} .bgt-val{margin-left:0; flex-basis:100%} }

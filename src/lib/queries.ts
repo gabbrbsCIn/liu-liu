@@ -1,3 +1,4 @@
+import { budgetStatus, type BudgetRow } from "./budgets";
 import { getDb } from "./db";
 import { addMonths, daysInMonth, monthEnd, monthStart, today, ymOf, type Ym } from "./dates";
 import { byGroup, cumulative, dailySpend, dominantGroupByDay, installmentPlans, committedByMonth, recurringBills, spendToday, sum, totals, weekdayAverages, type Tx } from "./finance";
@@ -74,7 +75,7 @@ export async function overview(ym: Ym) {
   const day = isCurrent ? Number(now.slice(8, 10)) : daysInMonth(ym);
   const prevYm = addMonths(ym, -1);
 
-  const [txs, prevTxs, accs, goalRows, invest, savingsGoal, expIncome, history] = await Promise.all([
+  const [txs, prevTxs, accs, goalRows, invest, savingsGoal, expIncome, history, budgetRows] = await Promise.all([
     txsOfMonth(ym),
     txsOfMonth(prevYm),
     accounts(),
@@ -83,6 +84,7 @@ export async function overview(ym: Ym) {
     setting("savings_goal"),
     expectedIncome(ym),
     txsBetween(monthStart(addMonths(ym, -3)), monthEnd(ym)),
+    budgetRows_(),
   ]);
 
   const t = totals(txs);
@@ -134,7 +136,20 @@ export async function overview(ym: Ym) {
     incomeEvents,
     billEvents,
     biggest: txs.filter((x) => x.direction === "out" && !x.excluded).sort((a, b) => b.amount - a.amount)[0] ?? null,
+    budgets: budgetStatus(ym, txs, history.filter((x) => ymOf(x.date) < ym), budgetRows, isCurrent ? day : null),
   };
+}
+
+function budgetRows_(): Promise<BudgetRow[]> {
+  return getDb().then((db) => db.query<BudgetRow>("SELECT group_key, sub_label, amount FROM budgets ORDER BY group_key, sub_label"));
+}
+
+/** Budgets screen: every group's budget against what was spent in the month. */
+export async function budgetsView(ym: Ym) {
+  const now = today();
+  const isCurrent = ymOf(now) === ym;
+  const [txs, history, rows] = await Promise.all([txsOfMonth(ym), txsBetween(monthStart(addMonths(ym, -3)), monthEnd(addMonths(ym, -1))), budgetRows_()]);
+  return budgetStatus(ym, txs, history, rows, isCurrent ? Number(now.slice(8, 10)) : null);
 }
 
 function addDaysIso(day: string, n: number) {

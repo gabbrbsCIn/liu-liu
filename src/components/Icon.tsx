@@ -3,6 +3,7 @@ const PATHS = {
   tx: <path d="M4 7h13M14 4l3 3-3 3M20 17H7M10 14l-3 3 3 3" />,
   inst: <><rect x="3" y="6" width="18" height="13" rx="2" /><path d="M3 10h18" /></>,
   cats: <><path d="M3 12V4h8l10 10-8 8z" /><circle cx="7.5" cy="8.5" r="1" /></>,
+  budget: <><circle cx="12" cy="12" r="8.5" /><path d="M12 12V3.5M12 12l6 6" /></>,
   plus: <path d="M12 5v14M5 12h14" />,
   history: <><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></>,
   trash: <><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></>,

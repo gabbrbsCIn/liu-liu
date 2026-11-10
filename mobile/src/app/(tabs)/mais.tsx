@@ -55,6 +55,7 @@ export default function More() {
   return (
     <Screen refreshing={session.isRefetching} onRefresh={() => session.refetch()}>
       <Panel style={{ paddingVertical: 4 }}>
+        <Row href="/orcamentos">{line('budget', 'Orçamentos')}{chev}</Row>
         <Row href="/parcelamentos">{line('inst', 'Parcelamentos')}{chev}</Row>
         <Row href="/investimentos">{line('invest', 'Investimentos')}{chev}</Row>
         <Row onPress={() => askLiu()} last>{line('chat', 'Conversar com o liu liu')}{chev}</Row>

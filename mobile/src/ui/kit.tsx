@@ -69,9 +69,9 @@ export function Row({ children, href, onPress, style, last }: { children: React.
 }
 
 /** Percentage change badge (.chg good/bad/flat). */
-export function Change({ kind, children }: { kind: 'good' | 'bad' | 'flat'; children: React.ReactNode }) {
+export function Change({ kind, children }: { kind: 'good' | 'bad' | 'warn' | 'flat'; children: React.ReactNode }) {
   const t = useTheme();
-  const c = kind === 'good' ? t.pos : kind === 'bad' ? t.neg : t['fg-2'];
+  const c = kind === 'good' ? t.pos : kind === 'bad' ? t.neg : kind === 'warn' ? t.warn : t['fg-2'];
   return (
     <View style={{ backgroundColor: kind === 'flat' ? t['raise-2'] : t.mix(c, 16), borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, alignSelf: 'flex-start' }}>
       <Text style={{ color: c, fontSize: 12, fontFamily: fonts.mono }}>{children}</Text>
@@ -142,6 +142,7 @@ const PATHS: Record<string, string> = {
   tx: 'M4 7h13M14 4l3 3-3 3M20 17H7M10 14l-3 3 3 3',
   inst: 'M5 6h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM3 10h18',
   cats: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  budget: 'M12 3.5a8.5 8.5 0 1 1 0 17a8.5 8.5 0 0 1 0-17zM12 12V3.5M12 12l6 6',
   plus: 'M12 5v14M5 12h14',
   history: 'M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2',
   trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',

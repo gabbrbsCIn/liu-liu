@@ -1,7 +1,7 @@
 // Shapes of the server's JSON, taken straight from the functions that build them (type-only imports:
 // nothing from the server is bundled into the app).
 import type { homeView, categoriesView, installmentsScreen, session, transactionsView } from '@shared/views';
-import type { cardsView, investmentsView } from '@shared/queries';
+import type { budgetsView, cardsView, investmentsView } from '@shared/queries';
 import type { TxFilter } from '@shared/txFilter';
 
 type Data<F extends (...a: never[]) => unknown> = Awaited<ReturnType<F>>;
@@ -21,6 +21,8 @@ export type CategoriesData = WithToday<Data<typeof categoriesView>>;
 export type CardsData = WithToday<{ holder: string; cards: Data<typeof cardsView> }>;
 export type InstallmentsData = WithToday<Data<typeof installmentsScreen>>;
 export type InvestmentsData = WithToday<Data<typeof investmentsView>>;
+export type BudgetsData = WithToday<Data<typeof budgetsView>>;
+export type { BudgetLine, GroupBudget } from '@shared/budgets';
 
 export type ChatMessage = { role: 'user' | 'assistant'; display: string; created_at: string };
 export type Conversation = { id: string; title: string; updated_at: string; messages: number };

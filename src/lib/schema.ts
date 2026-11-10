@@ -102,6 +102,10 @@ CREATE TABLE IF NOT EXISTS budgets (
   group_key text PRIMARY KEY,
   amount double precision NOT NULL
 );
+-- A budget is for a whole group (sub_label '') or for one subcategory inside it.
+ALTER TABLE budgets ADD COLUMN IF NOT EXISTS sub_label text NOT NULL DEFAULT '';
+ALTER TABLE budgets DROP CONSTRAINT IF EXISTS budgets_pkey;
+CREATE UNIQUE INDEX IF NOT EXISTS budgets_group_sub ON budgets (group_key, sub_label);
 CREATE TABLE IF NOT EXISTS goals (
   id serial PRIMARY KEY,
   name text NOT NULL,
