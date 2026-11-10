@@ -7,6 +7,7 @@ O design aprovado está em `design/` (`prototipo.html` e `direcoes.html`).
 ## Como funciona
 
 - **Next.js 15** (App Router) com páginas renderizadas no servidor: Visão geral, Transações, Parcelamentos, Categorias e Cartões.
+- **Orçamentos** (`src/lib/budgets.ts`, página `/orcamentos`, `GET/PUT /api/budgets`): limite mensal por grupo ou subcategoria, comparado com o gasto e com o seu ritmo de costume (últimos 3 meses); a média dos 3 meses aparece como sugestão.
 - **Filtros de transações na URL** (`src/lib/txFilter.ts`): período (`m` ou `de`/`ate`), `cat` (grupo ou `grupo:Subcategoria`), `conta`, `tipo`, `q`, `min`/`max`, `parc`, `editadas`, `obs`, `ocultas`. Heatmap, linha do mês, categorias, contas, cartões, parcelamentos e o chat linkam direto para a lista filtrada com `txHref()`.
 - **Banco de dados:** Postgres quando `DATABASE_URL` existe; sem ela, um Postgres embutido (PGlite) em `.data/`, bom para desenvolvimento.
 - **Pluggy:** o botão “+ conectar banco” abre o widget da Pluggy. Escolha **MeuPluggy** para trazer os bancos que você já conectou lá. Depois disso o app importa 12 meses e atualiza:

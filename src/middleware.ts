@@ -9,7 +9,7 @@ const OPEN_EXACT = ["/conectar"];
 
 // The app's web build calls the API from another origin. It authenticates with a bearer token, never the
 // cookie (a "*" origin never carries credentials), so allowing any origin exposes nothing.
-const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, content-type", "access-control-allow-methods": "GET, POST, PATCH, DELETE, OPTIONS" };
+const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers": "authorization, content-type", "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS" };
 
 export async function middleware(req: NextRequest) {
   const res = await guard(req);

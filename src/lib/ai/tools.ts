@@ -6,7 +6,7 @@ import { monthStart, today, validYm, ymOf } from "../dates";
 import { getDb } from "../db";
 import { normalize } from "../categorize";
 import { txHref } from "../txFilter";
-import { accounts, cardsView, installmentsView, investmentsView, overview, txsBetween } from "../queries";
+import { accounts, budgetsView, cardsView, installmentsView, investmentsView, overview, txsBetween } from "../queries";
 
 const GROUP_ENUM = ["moradia", "alim", "compras", "saude", "lazer", "transp", "outros"] as const;
 const ymSchema = z.string().regex(/^\d{4}-\d{2}$/).describe("Mês no formato AAAA-MM. Omita para o mês atual.");
@@ -32,7 +32,7 @@ export const TOOL_DEFS = [
         gasto: o.spent,
         entradas: o.income,
         gasto_mes_anterior_mesmo_dia: o.prevSpentSamePoint,
-        categorias: o.groups.filter((g) => g.total > 0 || g.prev > 0).map((g) => ({ categoria: g.key, nome: group(g.key).name, total: g.total, mes_anterior: g.prev, subcategorias: g.subs.slice(0, 6) })),
+        categorias: o.groups.filter((g) => g.total > 0 || g.prev > 0).map((g) => ({ categoria: g.key, nome: group(g.key).name, total: g.total, mes_anterior: g.prev, orcamento: o.budgets.groups.find((b) => b.group_key === g.key)?.budget ?? null, subcategorias: g.subs.slice(0, 6) })),
         pode_gastar: { por_dia: o.spend.perDay, livre_no_mes: o.spend.free, renda_considerada: o.spend.income, meta_de_poupanca: o.savingsGoal, dias_restantes: o.spend.daysLeft },
         proximos_vencimentos: o.upcoming,
         maior_gasto: o.biggest && { descricao: o.biggest.description, valor: o.biggest.amount, data: o.biggest.date },
@@ -129,9 +129,26 @@ export const TOOL_DEFS = [
   }),
   def({
     name: "definir_orcamento",
-    description: "Define o orçamento mensal de uma categoria.",
-    schema: z.object({ categoria: z.enum(GROUP_ENUM), valor: z.number().min(0) }),
-    run: async (i) => setBudget(i.categoria, i.valor),
+    description: "Define o orçamento mensal de uma categoria (grupo) ou de uma subcategoria dentro dela, ex.: Alimentação › Delivery. Valor 0 remove o orçamento.",
+    schema: z.object({ categoria: z.enum(GROUP_ENUM), subcategoria: z.string().max(60).optional().describe("Ex.: 'Delivery'. Omita para o grupo inteiro."), valor: z.number().min(0) }),
+    run: async (i) => setBudget(i.categoria, i.valor, i.subcategoria ?? ""),
+  }),
+  def({
+    name: "orcamentos",
+    description: "Situação dos orçamentos de um mês: quanto foi orçado e gasto em cada categoria, se está no ritmo, acima do ritmo ou estourado, e quanto ainda dá para gastar por dia. Também traz a média dos últimos 3 meses de cada categoria, útil para sugerir um orçamento.",
+    schema: z.object({ mes: z.string().optional().describe("AAAA-MM. Padrão: mês atual.") }),
+    run: async (i) => {
+      const v = await budgetsView(validYm(i.mes) ?? ymOf(today()));
+      const brief = (l: { budget: number | null; spent: number; suggestion: number; remaining: number | null; perDay: number | null; status: string }) => ({
+        orcado: l.budget, gasto: l.spent, sobra: l.remaining, por_dia_ate_o_fim: l.perDay, situacao: l.status, media_3_meses: l.suggestion,
+      });
+      return {
+        mes: v.ym,
+        total: brief(v.total),
+        categorias: v.groups.map((g) => ({ categoria: g.group_key, nome: g.label, ...brief(g), subcategorias: g.subs.filter((s) => s.budget != null).map((s) => ({ nome: s.label, ...brief(s) })) })),
+        situacoes: "none = sem orçamento, ok = no ritmo, pace = gastando acima do ritmo do mês, over = estourou",
+      };
+    },
   }),
   def({
     name: "definir_meta_de_poupanca",

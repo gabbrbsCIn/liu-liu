@@ -6,7 +6,7 @@ import { BRL } from "@/lib/format";
 import { txHref } from "@/lib/txFilter";
 import { Icon } from "./Icon";
 
-export function CategoryGroups({ ym, groups, total }: { ym: string; groups: { key: GroupKey; total: number; subs: { label: string; total: number }[] }[]; total: number }) {
+export function CategoryGroups({ ym, groups, total, budgets = {} }: { ym: string; budgets?: Record<string, number>; groups: { key: GroupKey; total: number; subs: { label: string; total: number }[] }[]; total: number }) {
   const shown = groups.filter((g) => g.total > 0);
   const [open, setOpen] = useState<Set<string>>(new Set(shown.slice(0, 3).map((g) => g.key)));
   const max = shown[0]?.total ?? 1;
@@ -25,7 +25,7 @@ export function CategoryGroups({ ym, groups, total }: { ym: string; groups: { ke
             >
               <Icon name="chev" className="chev" />
               <span className="badge" style={{ background: meta.color }}>{meta.note ? `R$ ${meta.note}` : "···"}</span>
-              <span className="nm">{meta.name}<span className="pc">{g.subs.length} {g.subs.length === 1 ? "subcategoria" : "subcategorias"} · {((g.total / total) * 100).toFixed(1).replace(".", ",")}%</span></span>
+              <span className="nm">{meta.name}<span className="pc">{g.subs.length} {g.subs.length === 1 ? "subcategoria" : "subcategorias"} · {((g.total / total) * 100).toFixed(1).replace(".", ",")}%{budgets[g.key] ? ` · ${Math.round((g.total / budgets[g.key]) * 100)}% do orçamento` : ""}</span></span>
               <span className="amt" style={{ fontSize: 15 }}>{BRL(g.total)}</span>
               <span className="bar"><i style={{ width: `${(g.total / max) * 100}%`, background: meta.color }} /></span>
             </button>

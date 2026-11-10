@@ -3,6 +3,7 @@ import { BRL } from "./format";
 import type { overview } from "./queries";
 import type { Tx } from "./finance";
 import { isSpend } from "./finance";
+import { budgetAlert } from "./budgets";
 
 type Overview = Awaited<ReturnType<typeof overview>>;
 export type Note = { text: string; ask: string };
@@ -11,6 +12,14 @@ export type Note = { text: string; ask: string };
 export function notes(o: Overview, txs: Tx[], prevTxs: Tx[]): Note[] {
   const out: Note[] = [];
   const prevName = monthName(addMonths(o.ym, -1));
+
+  // A budget that blew up or is running ahead of the month comes first.
+  const alert = budgetAlert(o.budgets);
+  if (alert?.status === "over") {
+    out.push({ text: `${alert.label} passou do orçamento: ${BRL(alert.spent)} de ${BRL(alert.budget!)}.`, ask: `Onde estou gastando mais em ${alert.label.toLowerCase()} esse mês?` });
+  } else if (alert?.status === "pace" && o.isCurrent) {
+    out.push({ text: `${alert.label} está acima do ritmo: ${BRL(alert.spent)} de ${BRL(alert.budget!)}. Para fechar no orçamento, dá ${BRL(alert.perDay ?? 0)} por dia até o fim do mês.`, ask: `Como faço para ${alert.label.toLowerCase()} caber no orçamento esse mês?` });
+  }
 
   // Subcategory that grew the most against last month.
   const subs = (list: Tx[], upTo: number) => {

@@ -83,11 +83,22 @@ export async function updateGoal(id: number, p: { saved?: number; target?: numbe
   return { ok: true };
 }
 
-export async function setBudget(groupKey: string, amount: number) {
+/** Monthly budget for a group, or for one of its subcategories. No amount (or zero) removes it. */
+export async function setBudget(groupKey: string, amount: number | null, subLabel = "") {
   if (!isGroupKey(groupKey)) throw new Error("Categoria desconhecida.");
+  const sub = subLabel.trim().slice(0, 60);
+  if (amount != null && (!Number.isFinite(amount) || amount < 0 || amount > 10_000_000)) throw new Error("Valor inválido.");
   const db = await getDb();
-  await db.query("INSERT INTO budgets (group_key, amount) VALUES ($1,$2) ON CONFLICT (group_key) DO UPDATE SET amount = EXCLUDED.amount", [groupKey, amount]);
-  return { ok: true };
+  if (!amount) {
+    await db.query("DELETE FROM budgets WHERE group_key = $1 AND sub_label = $2", [groupKey, sub]);
+    return { ok: true, removed: true };
+  }
+  const value = Math.round(amount * 100) / 100;
+  await db.query(
+    "INSERT INTO budgets (group_key, sub_label, amount) VALUES ($1,$2,$3) ON CONFLICT (group_key, sub_label) DO UPDATE SET amount = EXCLUDED.amount",
+    [groupKey, sub, value],
+  );
+  return { ok: true, amount: value };
 }
 
 export async function setSavingsGoal(amount: number) {

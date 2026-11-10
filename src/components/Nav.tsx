@@ -8,6 +8,7 @@ const LINKS: [string, string, IconName][] = [
   ["/transacoes", "Transações", "tx"],
   ["/parcelamentos", "Parcelamentos", "inst"],
   ["/categorias", "Categorias", "cats"],
+  ["/orcamentos", "Orçamentos", "budget"],
   ["/cartoes", "Cartões", "cards"],
   ["/investimentos", "Investimentos", "invest"],
 ];

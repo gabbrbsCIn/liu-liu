@@ -48,6 +48,7 @@ function Root() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="parcelamentos" options={{ title: 'Parcelamentos' }} />
           <Stack.Screen name="investimentos" options={{ title: 'Investimentos' }} />
+          <Stack.Screen name="orcamentos" options={{ title: 'Orçamentos' }} />
           <Stack.Screen name="chat" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="transacao" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="conectado" options={{ headerShown: false }} />
